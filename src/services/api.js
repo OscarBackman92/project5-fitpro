@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://fitnessapi-d773a1148384.herokuapp.com';
+const BASE_URL = process.env.REACT_APP_API_URL || 'https://fitnessapi-d773a1148384.herokuapp.com';
 
 // Create axios instance with default config
 const axiosInstance = axios.create({
@@ -36,80 +36,27 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-// Error handler helper
-const handleError = (error) => {
-  if (error.response) {
-    // The request was made and the server responded with a status code
-    // that falls out of the range of 2xx
-    const errorMessage = error.response.data?.detail || 
-                        error.response.data?.message || 
-                        'An error occurred';
-    throw new Error(errorMessage);
-  } else if (error.request) {
-    // The request was made but no response was received
-    throw new Error('No response received from server');
-  } else {
-    // Something happened in setting up the request that triggered an Error
-    throw new Error('Error setting up the request');
-  }
-};
-
 export const api = {
   auth: {
     login: async (credentials) => {
       try {
         return await axiosInstance.post('/api/auth/login/', credentials);
       } catch (error) {
-        handleError(error);
+        throw error;
       }
     },
     register: async (userData) => {
       try {
         return await axiosInstance.post('/api/auth/register/', userData);
       } catch (error) {
-        handleError(error);
+        throw error;
       }
     },
     logout: async () => {
       try {
         return await axiosInstance.post('/api/auth/logout/');
       } catch (error) {
-        handleError(error);
-      }
-    }
-  },
-
-  profile: {
-    get: async () => {
-      try {
-        return await axiosInstance.get('/api/profiles/me/');
-      } catch (error) {
-        handleError(error);
-      }
-    },
-    update: async (data) => {
-      try {
-        const config = data instanceof FormData ? {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          }
-        } : {};
-        return await axiosInstance.patch('/api/profiles/me/', data, config);
-      } catch (error) {
-        handleError(error);
-      }
-    },
-    updatePicture: async (file) => {
-      try {
-        const formData = new FormData();
-        formData.append('profile_picture', file);
-        return await axiosInstance.patch('/api/profiles/update_profile_picture/', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          }
-        });
-      } catch (error) {
-        handleError(error);
+        throw error;
       }
     }
   },
@@ -122,97 +69,75 @@ export const api = {
           data: Array.isArray(response.data) ? response.data : []
         };
       } catch (error) {
-        console.error('Error fetching workouts:', error);
         throw error;
       }
     },
     create: async (data) => {
       try {
-        console.log('API sending data:', data); // Debug log
-        const response = await axiosInstance.post('/api/workouts/', data);
-        console.log('API response:', response); // Debug log
-        return response;
+        return await axiosInstance.post('/api/workouts/', data);
       } catch (error) {
-        console.error('API error:', error.response?.data || error); // Debug log
         throw error;
       }
     },
     get: async (id) => {
       try {
-        const response = await axiosInstance.get(`/api/workouts/${id}/`);
-        return response;
+        return await axiosInstance.get(`/api/workouts/${id}/`);
       } catch (error) {
         throw error;
       }
     },
     update: async (id, data) => {
       try {
-        const response = await axiosInstance.patch(`/api/workouts/${id}/`, data);
-        return response;
+        return await axiosInstance.patch(`/api/workouts/${id}/`, data);
       } catch (error) {
         throw error;
       }
     },
     delete: async (id) => {
       try {
-        const response = await axiosInstance.delete(`/api/workouts/${id}/`);
-        return response;
+        return await axiosInstance.delete(`/api/workouts/${id}/`);
       } catch (error) {
         throw error;
       }
     },
     getSummary: async () => {
       try {
-        const response = await axiosInstance.get('/api/workouts/summary/');
-        return response;
+        return await axiosInstance.get('/api/workouts/summary/');
       } catch (error) {
         throw error;
       }
     }
   },
 
-  // Optional: Social features if you want to implement them later
-  social: {
-    getFollowers: async () => {
+  profile: {
+    get: async () => {
       try {
-        return await axiosInstance.get('/api/follows/');
+        return await axiosInstance.get('/api/profiles/me/');
       } catch (error) {
-        handleError(error);
+        throw error;
       }
     },
-    follow: async (userId) => {
+    update: async (data) => {
       try {
-        return await axiosInstance.post('/api/follows/follow/', { user_id: userId });
+        return await axiosInstance.patch('/api/profiles/me/', data);
       } catch (error) {
-        handleError(error);
+        throw error;
       }
     },
-    unfollow: async (userId) => {
+    updatePicture: async (file) => {
       try {
-        return await axiosInstance.post('/api/follows/unfollow/', { user_id: userId });
+        const formData = new FormData();
+        formData.append('profile_picture', file);
+        return await axiosInstance.patch('/api/profiles/update_profile_picture/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        });
       } catch (error) {
-        handleError(error);
-      }
-    },
-    getFeed: async () => {
-      try {
-        return await axiosInstance.get('/api/feed/');
-      } catch (error) {
-        handleError(error);
+        throw error;
       }
     }
   }
 };
 
-// Helper for extracting error messages
-export const getErrorMessage = (error) => {
-  if (error.response?.data) {
-    if (typeof error.response.data === 'string') {
-      return error.response.data;
-    }
-    if (typeof error.response.data === 'object') {
-      return Object.values(error.response.data)[0];
-    }
-  }
-  return error.message || 'An error occurred';
-};
+export default api;
