@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container, Form, Button, Card, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { FiSave } from 'react-icons/fi';
+import { api } from '../../../services/api';
 
 const LogWorkout = () => {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ const LogWorkout = () => {
     workout_type: 'cardio',
     date_logged: new Date().toISOString().split('T')[0],
     duration: '',
+    calories: '',
     notes: '',
     intensity: 'moderate'
   });
@@ -21,13 +23,30 @@ const LogWorkout = () => {
     setError('');
 
     try {
-      // API call will be added later
+      const workoutData = {
+        ...formData,
+        duration: parseInt(formData.duration, 10),
+        calories: parseInt(formData.calories, 10)
+      };
+
+      console.log('Sending workout data:', workoutData);
+      
+      await api.workouts.create(workoutData);
       navigate('/workouts');
     } catch (err) {
-      setError('Failed to log workout. Please try again.');
+      console.error('Error saving workout:', err);
+      setError('Failed to save workout. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   return (
@@ -42,11 +61,9 @@ const LogWorkout = () => {
             <Form.Group className="mb-3">
               <Form.Label>Workout Type</Form.Label>
               <Form.Select
+                name="workout_type"
                 value={formData.workout_type}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  workout_type: e.target.value
-                }))}
+                onChange={handleChange}
                 required
               >
                 <option value="cardio">Cardio</option>
@@ -61,38 +78,48 @@ const LogWorkout = () => {
               <Form.Label>Date</Form.Label>
               <Form.Control
                 type="date"
+                name="date_logged"
                 value={formData.date_logged}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  date_logged: e.target.value
-                }))}
+                onChange={handleChange}
                 required
               />
             </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Duration (minutes)</Form.Label>
-              <Form.Control
-                type="number"
-                value={formData.duration}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  duration: e.target.value
-                }))}
-                required
-                min="1"
-                max="1440"
-              />
-            </Form.Group>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Duration (minutes)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="duration"
+                    value={formData.duration}
+                    onChange={handleChange}
+                    required
+                    min="1"
+                    max="1440"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Calories Burned</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="calories"
+                    value={formData.calories}
+                    onChange={handleChange}
+                    required
+                    min="0"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
 
             <Form.Group className="mb-3">
               <Form.Label>Intensity</Form.Label>
               <Form.Select
+                name="intensity"
                 value={formData.intensity}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  intensity: e.target.value
-                }))}
+                onChange={handleChange}
                 required
               >
                 <option value="low">Low</option>
@@ -106,11 +133,9 @@ const LogWorkout = () => {
               <Form.Control
                 as="textarea"
                 rows={3}
+                name="notes"
                 value={formData.notes}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  notes: e.target.value
-                }))}
+                onChange={handleChange}
                 placeholder="Add any additional details about your workout..."
               />
             </Form.Group>
@@ -120,6 +145,7 @@ const LogWorkout = () => {
                 variant="primary" 
                 type="submit"
                 disabled={loading}
+                size="lg"
               >
                 <FiSave className="me-2" />
                 {loading ? 'Saving...' : 'Save Workout'}

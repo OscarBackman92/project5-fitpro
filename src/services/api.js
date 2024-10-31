@@ -123,42 +123,50 @@ export const api = {
         };
       } catch (error) {
         console.error('Error fetching workouts:', error);
-        handleError(error);
-      }
-    },
-    get: async (id) => {
-      try {
-        return await axiosInstance.get(`/api/workouts/${id}/`);
-      } catch (error) {
-        handleError(error);
+        throw error;
       }
     },
     create: async (data) => {
       try {
-        return await axiosInstance.post('/api/workouts/', data);
+        console.log('API sending data:', data); // Debug log
+        const response = await axiosInstance.post('/api/workouts/', data);
+        console.log('API response:', response); // Debug log
+        return response;
       } catch (error) {
-        handleError(error);
+        console.error('API error:', error.response?.data || error); // Debug log
+        throw error;
+      }
+    },
+    get: async (id) => {
+      try {
+        const response = await axiosInstance.get(`/api/workouts/${id}/`);
+        return response;
+      } catch (error) {
+        throw error;
       }
     },
     update: async (id, data) => {
       try {
-        return await axiosInstance.patch(`/api/workouts/${id}/`, data);
+        const response = await axiosInstance.patch(`/api/workouts/${id}/`, data);
+        return response;
       } catch (error) {
-        handleError(error);
+        throw error;
       }
     },
     delete: async (id) => {
       try {
-        return await axiosInstance.delete(`/api/workouts/${id}/`);
+        const response = await axiosInstance.delete(`/api/workouts/${id}/`);
+        return response;
       } catch (error) {
-        handleError(error);
+        throw error;
       }
     },
     getSummary: async () => {
       try {
-        return await axiosInstance.get('/api/workouts/summary/');
+        const response = await axiosInstance.get('/api/workouts/summary/');
+        return response;
       } catch (error) {
-        handleError(error);
+        throw error;
       }
     }
   },
