@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { api } from '../../services/api';
 
 const AuthContext = createContext(null);
@@ -6,20 +6,29 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [loading, setLoading] = useState(true);
 
   const fetchUserProfile = useCallback(async () => {
-    if (!token) return;
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     try {
       const response = await api.profile.get();
       setUser(response.data);
     } catch (error) {
       console.error('Error fetching profile:', error);
-      // Handle logout
       localStorage.removeItem('token');
       setToken(null);
       setUser(null);
+    } finally {
+      setLoading(false);
     }
-  }, [token]); // Only depend on token
+  }, [token]);
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, [fetchUserProfile]);
 
   const login = useCallback(async (credentials) => {
     try {
@@ -30,26 +39,57 @@ export const AuthProvider = ({ children }) => {
       // After setting token, fetch user profile
       const profileResponse = await api.profile.get();
       setUser(profileResponse.data);
-      return true;
+      return { success: true };
     } catch (error) {
       console.error('Login error:', error);
-      return false;
+      return { 
+        success: false, 
+        error: error.response?.data?.non_field_errors?.[0] || 'Login failed'
+      };
     }
-  }, []); // No dependencies needed as we're not using any external values
+  }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
-  }, []); // No dependencies needed
+  const logout = useCallback(async () => {
+    try {
+      if (token) {
+        await api.auth.logout();
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('token');
+      setToken(null);
+      setUser(null);
+    }
+  }, [token]);
+
+  const updateProfile = useCallback(async (data) => {
+    try {
+      const response = await api.profile.update(data);
+      setUser(response.data);
+      return { success: true };
+    } catch (error) {
+      console.error('Profile update error:', error);
+      return { 
+        success: false, 
+        error: 'Failed to update profile'
+      };
+    }
+  }, []);
 
   const value = {
     user,
     token,
+    loading,
     login,
     logout,
-    fetchUserProfile
+    fetchUserProfile,
+    updateProfile
   };
+
+  if (loading) {
+    return <div>Loading...</div>; // Or your loading component
+  }
 
   return (
     <AuthContext.Provider value={value}>

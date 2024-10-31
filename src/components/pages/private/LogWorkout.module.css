@@ -1,0 +1,15 @@
+.workout-form {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .section-title {
+    color: #6c757d;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+  
+  .form-card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
