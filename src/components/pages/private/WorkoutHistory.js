@@ -13,23 +13,27 @@ const WorkoutHistory = () => {
   const fetchWorkouts = async () => {
     try {
       const response = await api.workouts.getAll();
-      console.log('API Response:', response); // Debug log
+      console.log('Full API Response:', response);
       
-      // Ensure we're accessing the data correctly
-      const workoutData = response.data;
-      console.log('Workout Data:', workoutData); // Debug log
-      
-      setWorkouts(Array.isArray(workoutData) ? workoutData : []);
+      // Extract workouts from the paginated response
+      if (response.data.results) {
+        setWorkouts(response.data.results);
+        console.log('Workouts set:', response.data.results);
+      } else {
+        console.error('Unexpected response format:', response.data);
+        setWorkouts([]);
+      }
     } catch (err) {
-      console.error('Error fetching workouts:', err); // Debug log
+      console.error('Error fetching workouts:', err);
       setError('Failed to load workouts');
-      setWorkouts([]); // Set empty array on error
+      setWorkouts([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    console.log('Fetching workouts...');
     fetchWorkouts();
   }, []);
 
@@ -37,7 +41,7 @@ const WorkoutHistory = () => {
     if (window.confirm('Are you sure you want to delete this workout?')) {
       try {
         await api.workouts.delete(id);
-        setWorkouts(prevWorkouts => prevWorkouts.filter(workout => workout.id !== id));
+        await fetchWorkouts(); // Refresh the list after deletion
       } catch (err) {
         setError('Failed to delete workout');
       }
@@ -49,7 +53,7 @@ const WorkoutHistory = () => {
   return (
     <Container>
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>My Workouts</h2>
+        <h2>My Workouts ({workouts.length})</h2>
         <Button as={Link} to="/workouts/new" variant="primary">
           <FiPlus className="me-2" />
           Add Workout
