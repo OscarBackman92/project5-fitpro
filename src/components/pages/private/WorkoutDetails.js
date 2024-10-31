@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Form, Button, Card, Alert, Row, Col } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiSave, FiTrash2, FiArrowLeft } from 'react-icons/fi';
@@ -20,11 +20,7 @@ const WorkoutDetails = () => {
     intensity: ''
   });
 
-  useEffect(() => {
-    fetchWorkout();
-  }, [id]);
-
-  const fetchWorkout = async () => {
+  const fetchWorkout = useCallback(async () => {
     try {
       const response = await api.workouts.get(id);
       const workout = response.data;
@@ -41,7 +37,11 @@ const WorkoutDetails = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchWorkout();
+  }, [fetchWorkout]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
