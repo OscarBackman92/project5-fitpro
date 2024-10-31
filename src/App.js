@@ -24,9 +24,7 @@ function App() {
 
   return (
     <Router>
-      {/* Conditional Navbar */}
       {token ? <AuthNavbar /> : <PublicNavbar />}
-      
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<PublicHome />} />
