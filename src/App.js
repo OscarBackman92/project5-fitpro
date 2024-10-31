@@ -4,6 +4,7 @@ import PublicNavbar from './components/layout/PublicNavbar';
 import AuthNavbar from './components/layout/AuthNavbar';
 import PrivateRoute from './components/auth/PrivateRoute';
 import LoadingSpinner from './components/layout/LoadingSpinner';
+import Footer from './components/layout/Footer';
 
 // Public Pages
 import PublicHome from './components/pages/public/PublicHome';
@@ -27,22 +28,25 @@ function App() {
   }
 
   return (
-    <Router>
-      {token ? <AuthNavbar /> : <PublicNavbar />}
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<PublicHome />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+    <div className="page-wrapper">
+      <Router>
+        {token ? <AuthNavbar /> : <PublicNavbar />}
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<PublicHome />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        {/* Protected Routes */}
-        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-        <Route path="/workouts" element={<PrivateRoute><WorkoutHistory /></PrivateRoute>} />
-        <Route path="/workouts/new" element={<PrivateRoute><LogWorkout /></PrivateRoute>} />
-        <Route path="/workouts/:id" element={<PrivateRoute><WorkoutDetails /></PrivateRoute>} />
-      </Routes>
-    </Router>
+          {/* Protected Routes */}
+          <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+          <Route path="/workouts" element={<PrivateRoute><WorkoutHistory /></PrivateRoute>} />
+          <Route path="/workouts/new" element={<PrivateRoute><LogWorkout /></PrivateRoute>} />
+          <Route path="/workouts/:id" element={<PrivateRoute><WorkoutDetails /></PrivateRoute>} />
+        </Routes>
+        <Footer />
+      </Router>
+    </div>
   );
 }
 
