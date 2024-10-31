@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Form, Button, Row, Col, Card, Alert, Image } from 'react-bootstrap';
 import { FiSave, FiCamera } from 'react-icons/fi';
 import { api } from '../../../services/api';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import LoadingSpinner from '../../layout/LoadingSpinner';
 
 const Profile = () => {

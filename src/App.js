@@ -6,7 +6,7 @@ import AuthNavbar from './components/layout/AuthNavbar';
 import PrivateRoute from './components/auth/PrivateRoute';
 import LoadingSpinner from './components/layout/LoadingSpinner';
 import Footer from './components/layout/Footer';
-import { useAuth } from './components/contexts/AuthContext';
+import { useAuth } from './components/hooks/useAuth';
 
 // Public Pages
 import PublicHome from './components/pages/public/PublicHome';

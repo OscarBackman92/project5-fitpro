@@ -16,12 +16,16 @@ if (process.env.REACT_APP_API_URL) {
   axiosInstance.defaults.baseURL = process.env.REACT_APP_API_URL;
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-
 // Add error handler for uncaught promise rejections
 window.addEventListener('unhandledrejection', (event) => {
   console.error('Unhandled promise rejection:', event.reason);
 });
+
+const rootElement = document.getElementById('root');
+// Ensure we only create root once
+const root = rootElement._reactRootContainer?._internalRoot ? 
+  ReactDOM.hydrateRoot(rootElement) : 
+  ReactDOM.createRoot(rootElement);
 
 const AppWithProviders = () => (
   <React.StrictMode>
@@ -43,9 +47,4 @@ root.render(<AppWithProviders />);
 if (process.env.NODE_ENV === 'development') {
   console.log('Running in development mode');
   console.log('API URL:', process.env.REACT_APP_API_URL);
-}
-
-// Enable hot reloading in development
-if (process.env.NODE_ENV === 'development' && module.hot) {
-  module.hot.accept();
 }

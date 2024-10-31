@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { Container, Form, Button, Card, Alert, Row, Col, ButtonGroup } from 'react-bootstrap';
+import { Container, Form, Button, Card, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { FiSave, FiList, FiGrid, FiPlus } from 'react-icons/fi';
+import { FiSave } from 'react-icons/fi';
 import { api } from '../../../services/api';
 
 const LogWorkout = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
     workout_type: 'cardio',
     date_logged: new Date().toISOString().split('T')[0],
@@ -22,20 +21,28 @@ const LogWorkout = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setSuccess(false);
 
     try {
+      console.log('Submitting workout data:', formData); // Debug log
+      
+      // Format the data
       const workoutData = {
         ...formData,
         duration: parseInt(formData.duration, 10),
         calories: parseInt(formData.calories, 10)
       };
+
+      // Get the token
+      const token = localStorage.getItem('token');
+      console.log('Auth token:', token); // Debug log
+
+      const response = await api.workouts.create(workoutData);
+      console.log('Workout created:', response.data); // Debug log
       
-      await api.workouts.create(workoutData);
-      setSuccess(true);
+      navigate('/workouts');
     } catch (err) {
-      console.error('Error saving workout:', err);
-      setError('Failed to save workout. Please try again.');
+      console.error('Error creating workout:', err);
+      setError(err.response?.data?.message || 'Failed to save workout. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -48,54 +55,6 @@ const LogWorkout = () => {
       [name]: value
     }));
   };
-
-  if (success) {
-    return (
-      <Container>
-        <Card>
-          <Card.Body className="text-center">
-            <h3 className="text-success mb-4">Workout Saved Successfully!</h3>
-            <p>Where would you like to go next?</p>
-            <ButtonGroup>
-              <Button 
-                variant="primary" 
-                onClick={() => navigate('/dashboard')}
-                className="me-2"
-              >
-                <FiGrid className="me-2" />
-                Go to Dashboard
-              </Button>
-              <Button 
-                variant="secondary" 
-                onClick={() => navigate('/workouts')}
-                className="me-2"
-              >
-                <FiList className="me-2" />
-                View All Workouts
-              </Button>
-              <Button 
-                variant="outline-primary" 
-                onClick={() => {
-                  setSuccess(false);
-                  setFormData({
-                    workout_type: 'cardio',
-                    date_logged: new Date().toISOString().split('T')[0],
-                    duration: '',
-                    calories: '',
-                    notes: '',
-                    intensity: 'moderate'
-                  });
-                }}
-              >
-                <FiPlus className="me-2" />
-                Log Another Workout
-              </Button>
-            </ButtonGroup>
-          </Card.Body>
-        </Card>
-      </Container>
-    );
-  }
 
   return (
     <Container>
@@ -133,36 +92,30 @@ const LogWorkout = () => {
               />
             </Form.Group>
 
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Duration (minutes)</Form.Label>
-                  <Form.Control
-                    type="number"
-                    name="duration"
-                    value={formData.duration}
-                    onChange={handleChange}
-                    required
-                    min="1"
-                    max="1440"
-                  />
-                </Form.Group>
-              </Col>
+            <Form.Group className="mb-3">
+              <Form.Label>Duration (minutes)</Form.Label>
+              <Form.Control
+                type="number"
+                name="duration"
+                value={formData.duration}
+                onChange={handleChange}
+                required
+                min="1"
+                max="1440"
+              />
+            </Form.Group>
 
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Calories Burned</Form.Label>
-                  <Form.Control
-                    type="number"
-                    name="calories"
-                    value={formData.calories}
-                    onChange={handleChange}
-                    required
-                    min="0"
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
+            <Form.Group className="mb-3">
+              <Form.Label>Calories Burned</Form.Label>
+              <Form.Control
+                type="number"
+                name="calories"
+                value={formData.calories}
+                onChange={handleChange}
+                required
+                min="0"
+              />
+            </Form.Group>
 
             <Form.Group className="mb-3">
               <Form.Label>Intensity</Form.Label>
@@ -195,7 +148,6 @@ const LogWorkout = () => {
                 variant="primary" 
                 type="submit"
                 disabled={loading}
-                size="lg"
               >
                 <FiSave className="me-2" />
                 {loading ? 'Saving...' : 'Save Workout'}
