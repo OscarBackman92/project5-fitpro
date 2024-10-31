@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Button, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiRefreshCw } from 'react-icons/fi';
 import { api } from '../../../services/api';
 import LoadingSpinner from '../../layout/LoadingSpinner';
 
@@ -9,12 +9,10 @@ const WorkoutHistory = () => {
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    fetchWorkouts();
-  }, []);
-
-  const fetchWorkouts = async () => {
+  const fetchWorkouts = async (showRefreshing = false) => {
+    if (showRefreshing) setRefreshing(true);
     try {
       const response = await api.workouts.getAll();
       setWorkouts(Array.isArray(response.data) ? response.data : []);
@@ -22,18 +20,27 @@ const WorkoutHistory = () => {
       setError('Failed to load workouts');
     } finally {
       setLoading(false);
+      if (showRefreshing) setRefreshing(false);
     }
   };
+
+  useEffect(() => {
+    fetchWorkouts();
+  }, []);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this workout?')) {
       try {
         await api.workouts.delete(id);
-        setWorkouts(workouts.filter(workout => workout.id !== id));
+        setWorkouts(prevWorkouts => prevWorkouts.filter(workout => workout.id !== id));
       } catch (err) {
         setError('Failed to delete workout');
       }
     }
+  };
+
+  const handleRefresh = () => {
+    fetchWorkouts(true);
   };
 
   if (loading) return <LoadingSpinner />;
@@ -42,13 +49,24 @@ const WorkoutHistory = () => {
     <Container>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>My Workouts</h2>
-        <Button as={Link} to="/workouts/new" variant="primary">
-          <FiPlus className="me-2" />
-          Add Workout
-        </Button>
+        <div>
+          <Button 
+            variant="outline-secondary" 
+            onClick={handleRefresh} 
+            className="me-2"
+            disabled={refreshing}
+          >
+            <FiRefreshCw className={`me-2 ${refreshing ? 'spinner' : ''}`} />
+            Refresh
+          </Button>
+          <Button as={Link} to="/workouts/new" variant="primary">
+            <FiPlus className="me-2" />
+            Add Workout
+          </Button>
+        </div>
       </div>
 
-      {error && <Alert variant="danger">{error}</Alert>}
+      {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
 
       {workouts.length === 0 ? (
         <Alert variant="info">
@@ -62,6 +80,7 @@ const WorkoutHistory = () => {
               <th>Date</th>
               <th>Type</th>
               <th>Duration</th>
+              <th>Calories</th>
               <th>Intensity</th>
               <th>Notes</th>
               <th>Actions</th>
@@ -73,6 +92,7 @@ const WorkoutHistory = () => {
                 <td>{new Date(workout.date_logged).toLocaleDateString()}</td>
                 <td>{workout.workout_type_display}</td>
                 <td>{workout.duration} min</td>
+                <td>{workout.calories}</td>
                 <td>
                   <span 
                     className={`badge bg-${
