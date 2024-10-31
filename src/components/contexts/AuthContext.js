@@ -1,31 +1,11 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { api } from '../services/api';
+import { api } from '../../services/api';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
-
-  const login = useCallback(async (credentials) => {
-    try {
-      const response = await api.auth.login(credentials);
-      const { key } = response.data;
-      setToken(key);
-      localStorage.setItem('token', key);
-      await fetchUserProfile();
-      return true;
-    } catch (error) {
-      console.error('Login error:', error);
-      return false;
-    }
-  }, []);
-
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
-  }, []);
 
   const fetchUserProfile = useCallback(async () => {
     if (!token) return;
@@ -34,9 +14,34 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data);
     } catch (error) {
       console.error('Error fetching profile:', error);
-      logout();
+      // Handle logout
+      localStorage.removeItem('token');
+      setToken(null);
+      setUser(null);
     }
-  }, [token, logout]);
+  }, [token]); // Only depend on token
+
+  const login = useCallback(async (credentials) => {
+    try {
+      const response = await api.auth.login(credentials);
+      const { key } = response.data;
+      setToken(key);
+      localStorage.setItem('token', key);
+      // After setting token, fetch user profile
+      const profileResponse = await api.profile.get();
+      setUser(profileResponse.data);
+      return true;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
+    }
+  }, []); // No dependencies needed as we're not using any external values
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+  }, []); // No dependencies needed
 
   const value = {
     user,
