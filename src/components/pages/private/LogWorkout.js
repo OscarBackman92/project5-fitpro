@@ -11,7 +11,6 @@ const LogWorkout = () => {
     workout_type: 'cardio',
     date_logged: new Date().toISOString().split('T')[0],
     duration: '',
-    calories: '',
     notes: '',
     intensity: 'moderate'
   });
@@ -83,20 +82,6 @@ const LogWorkout = () => {
                 required
                 min="1"
                 max="1440"
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Calories Burned</Form.Label>
-              <Form.Control
-                type="number"
-                value={formData.calories}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  calories: e.target.value
-                }))}
-                required
-                min="0"
               />
             </Form.Group>
 
