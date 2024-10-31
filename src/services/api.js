@@ -36,45 +36,167 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-export const api = {
-  auth: {
-    login: (credentials) => axiosInstance.post('/api/auth/login/', credentials),
-    register: (userData) => axiosInstance.post('/api/auth/register/', userData),
-    logout: () => axiosInstance.post('/api/auth/logout/'),
-  },
-  profile: {
-    get: () => axiosInstance.get('/api/profiles/me/'),
-    update: (data) => {
-      if (data instanceof FormData) {
-        return axiosInstance.patch('/api/profiles/me/', data, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-      }
-      return axiosInstance.patch('/api/profiles/me/', data);
-    },
-    updatePicture: (file) => {
-      const formData = new FormData();
-      formData.append('profile_picture', file);
-      return axiosInstance.patch('/api/profiles/update_profile_picture/', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-    },
-  },
-  workouts: {
-    getAll: () => axiosInstance.get('/api/workouts/'),
-    get: (id) => axiosInstance.get(`/api/workouts/${id}/`),
-    create: (data) => axiosInstance.post('/api/workouts/', data),
-    update: (id, data) => axiosInstance.patch(`/api/workouts/${id}/`, data),
-    delete: (id) => axiosInstance.delete(`/api/workouts/${id}/`),
-    getSummary: () => axiosInstance.get('/api/workouts/summary/'),
-  },
+// Error handler helper
+const handleError = (error) => {
+  if (error.response) {
+    // The request was made and the server responded with a status code
+    // that falls out of the range of 2xx
+    const errorMessage = error.response.data?.detail || 
+                        error.response.data?.message || 
+                        'An error occurred';
+    throw new Error(errorMessage);
+  } else if (error.request) {
+    // The request was made but no response was received
+    throw new Error('No response received from server');
+  } else {
+    // Something happened in setting up the request that triggered an Error
+    throw new Error('Error setting up the request');
+  }
 };
 
-// Error handling helper
+export const api = {
+  auth: {
+    login: async (credentials) => {
+      try {
+        return await axiosInstance.post('/api/auth/login/', credentials);
+      } catch (error) {
+        handleError(error);
+      }
+    },
+    register: async (userData) => {
+      try {
+        return await axiosInstance.post('/api/auth/register/', userData);
+      } catch (error) {
+        handleError(error);
+      }
+    },
+    logout: async () => {
+      try {
+        return await axiosInstance.post('/api/auth/logout/');
+      } catch (error) {
+        handleError(error);
+      }
+    }
+  },
+
+  profile: {
+    get: async () => {
+      try {
+        return await axiosInstance.get('/api/profiles/me/');
+      } catch (error) {
+        handleError(error);
+      }
+    },
+    update: async (data) => {
+      try {
+        const config = data instanceof FormData ? {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        } : {};
+        return await axiosInstance.patch('/api/profiles/me/', data, config);
+      } catch (error) {
+        handleError(error);
+      }
+    },
+    updatePicture: async (file) => {
+      try {
+        const formData = new FormData();
+        formData.append('profile_picture', file);
+        return await axiosInstance.patch('/api/profiles/update_profile_picture/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        });
+      } catch (error) {
+        handleError(error);
+      }
+    }
+  },
+
+  workouts: {
+    getAll: async () => {
+      try {
+        const response = await axiosInstance.get('/api/workouts/');
+        return {
+          data: Array.isArray(response.data) ? response.data : []
+        };
+      } catch (error) {
+        console.error('Error fetching workouts:', error);
+        handleError(error);
+      }
+    },
+    get: async (id) => {
+      try {
+        return await axiosInstance.get(`/api/workouts/${id}/`);
+      } catch (error) {
+        handleError(error);
+      }
+    },
+    create: async (data) => {
+      try {
+        return await axiosInstance.post('/api/workouts/', data);
+      } catch (error) {
+        handleError(error);
+      }
+    },
+    update: async (id, data) => {
+      try {
+        return await axiosInstance.patch(`/api/workouts/${id}/`, data);
+      } catch (error) {
+        handleError(error);
+      }
+    },
+    delete: async (id) => {
+      try {
+        return await axiosInstance.delete(`/api/workouts/${id}/`);
+      } catch (error) {
+        handleError(error);
+      }
+    },
+    getSummary: async () => {
+      try {
+        return await axiosInstance.get('/api/workouts/summary/');
+      } catch (error) {
+        handleError(error);
+      }
+    }
+  },
+
+  // Optional: Social features if you want to implement them later
+  social: {
+    getFollowers: async () => {
+      try {
+        return await axiosInstance.get('/api/follows/');
+      } catch (error) {
+        handleError(error);
+      }
+    },
+    follow: async (userId) => {
+      try {
+        return await axiosInstance.post('/api/follows/follow/', { user_id: userId });
+      } catch (error) {
+        handleError(error);
+      }
+    },
+    unfollow: async (userId) => {
+      try {
+        return await axiosInstance.post('/api/follows/unfollow/', { user_id: userId });
+      } catch (error) {
+        handleError(error);
+      }
+    },
+    getFeed: async () => {
+      try {
+        return await axiosInstance.get('/api/feed/');
+      } catch (error) {
+        handleError(error);
+      }
+    }
+  }
+};
+
+// Helper for extracting error messages
 export const getErrorMessage = (error) => {
   if (error.response?.data) {
     if (typeof error.response.data === 'string') {
@@ -84,5 +206,5 @@ export const getErrorMessage = (error) => {
       return Object.values(error.response.data)[0];
     }
   }
-  return 'An error occurred. Please try again.';
+  return error.message || 'An error occurred';
 };
