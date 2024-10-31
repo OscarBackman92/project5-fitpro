@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FiPlus, FiActivity, FiClock, FiTrendingUp } from 'react-icons/fi';
+import { FiPlus, FiActivity, FiClock } from 'react-icons/fi';
 import { api } from '../../../services/api';
 import LoadingSpinner from '../../layout/LoadingSpinner';
 
@@ -9,7 +9,6 @@ const Dashboard = () => {
   const [stats, setStats] = useState({
     total_workouts: 0,
     total_duration: 0,
-    total_calories: 0,
     workouts_this_week: 0,
     workouts_this_month: 0,
     recent_workouts: []
@@ -48,7 +47,7 @@ const Dashboard = () => {
 
       <Row>
         {/* Stats Cards */}
-        <Col md={4}>
+        <Col md={6}>
           <Card className="mb-4">
             <Card.Body>
               <div className="d-flex align-items-center">
@@ -64,7 +63,7 @@ const Dashboard = () => {
           </Card>
         </Col>
 
-        <Col md={4}>
+        <Col md={6}>
           <Card className="mb-4">
             <Card.Body>
               <div className="d-flex align-items-center">
@@ -74,22 +73,6 @@ const Dashboard = () => {
                 <div>
                   <h6 className="mb-1">Total Minutes</h6>
                   <h3 className="mb-0">{stats.total_duration}</h3>
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        <Col md={4}>
-          <Card className="mb-4">
-            <Card.Body>
-              <div className="d-flex align-items-center">
-                <div className="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
-                  <FiTrendingUp className="text-warning" size={24} />
-                </div>
-                <div>
-                  <h6 className="mb-1">Total Calories</h6>
-                  <h3 className="mb-0">{stats.total_calories}</h3>
                 </div>
               </div>
             </Card.Body>
@@ -120,7 +103,6 @@ const Dashboard = () => {
                         </div>
                         <div className="text-end">
                           <div>{workout.duration} mins</div>
-                          <small>{workout.calories} calories</small>
                         </div>
                       </div>
                     </Link>
