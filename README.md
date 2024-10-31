@@ -1,70 +1,164 @@
-# Getting Started with Create React App
+# Fitness Tracker
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack fitness tracking application built with React and Django REST Framework. Track your workouts, monitor progress, and achieve your fitness goals.
 
-## Available Scripts
+![Dashboard Preview](placeholder-dashboard.png)
+*Dashboard preview showing workout statistics and recent activities*
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+### User Authentication & Profile
+- 🔐 Secure user registration and login
+- 👤 Customizable user profiles with profile pictures
+- 📝 Personal information management
+- 🔄 Real-time profile updates
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+![Authentication Flow](placeholder-auth.gif)
+*Demonstration of the authentication process*
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Workout Management
+- ➕ Easy workout logging with detailed information:
+  - Type (Cardio, Strength, Flexibility, Sports)
+  - Duration
+  - Calories burned
+  - Intensity level
+  - Notes
+- 📊 Comprehensive workout history
+- ✏️ Edit existing workouts
+- 🗑️ Delete workout records
 
-### `npm test`
+![Workout Logging](placeholder-workout-log.png)
+*Workout logging interface*
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Dashboard & Analytics
+- 📈 Overview of workout statistics
+- 🎯 Total workouts completed
+- ⏱️ Total duration of workouts
+- 🔥 Total calories burned
+- 📅 Recent workout history
 
-### `npm run build`
+## Technology Stack
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Frontend
+- React
+- React Router for navigation
+- React Bootstrap for UI components
+- Axios for API communication
+- React Icons
+- Context API for state management
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Backend
+- Django
+- Django REST Framework
+- PostgreSQL
+- Token Authentication
+- Cloudinary for image storage
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Getting Started
 
-### `npm run eject`
+### Prerequisites
+- Node.js (v14 or higher)
+- npm or yarn
+- Python (3.8 or higher)
+- pip
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Installation
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. Clone the repository
+```bash
+git clone [repository-url]
+cd fitness-tracker
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+2. Install frontend dependencies
+```bash
+cd frontend
+npm install
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+3. Set up environment variables
+Create a `.env` file in the frontend directory:
+```env
+REACT_APP_API_URL=http://localhost:8000
+```
 
-## Learn More
+4. Start the development server
+```bash
+npm start
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+The application will be available at `http://localhost:3000`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Usage
 
-### Code Splitting
+### Authentication
+1. Register a new account or login with existing credentials
+2. Complete your profile setup with personal information
+3. Upload a profile picture (optional)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Tracking Workouts
+1. Click "Log Workout" from the dashboard
+2. Fill in workout details:
+   - Select workout type
+   - Enter duration
+   - Input calories burned
+   - Choose intensity level
+   - Add notes (optional)
+3. Save your workout
 
-### Analyzing the Bundle Size
+### Viewing History
+1. Access "Workout History" from the navigation menu
+2. View all past workouts
+3. Edit or delete existing workouts
+4. Track your progress over time
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Project Structure
+```
+src/
+├── components/     # Reusable components
+├── contexts/       # React Context providers
+├── pages/         # Page components
+├── services/      # API services
+└── utils/         # Helper functions
+```
 
-### Making a Progressive Web App
+## Completed Features
+- ✅ User Registration
+- ✅ User Login/Logout
+- ✅ Profile Management
+- ✅ Workout Logging
+- ✅ Workout History
+- ✅ CRUD Operations for Workouts
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Coming Soon
+- 🚧 Workout Analytics & Charts
+- 🚧 Fitness Goal Setting
+- 🚧 Social Features (Follow Users)
+- 🚧 Activity Feed
+- 🚧 Comments & Likes
 
-### Advanced Configuration
+## Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-### Deployment
+## License
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Acknowledgments
+- Django REST Framework Documentation
+- React Documentation
+- React Bootstrap Components
+- [Add other acknowledgments]
 
-### `npm run build` fails to minify
+## Contact
+- Developer - [Your Name]
+- Project Link: [repository-url]
+- Live Demo: [demo-url]
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+*Note: Replace placeholder images with actual screenshots/GIFs of your application.*
