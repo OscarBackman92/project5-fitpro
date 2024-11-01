@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { api } from '../../services/api';
+
 export const useAuth = () => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem('token'));
@@ -17,9 +18,7 @@ export const useAuth = () => {
       setUser(response.data);
       setError(null);
     } catch (err) {
-      console.error('Error fetching user profile:', err);
-      setError('Failed to fetch user profile');
-      // If unauthorized, clear auth state
+      console.error('Error fetching profile:', err);
       if (err.response?.status === 401) {
         localStorage.removeItem('token');
         setToken(null);
@@ -61,8 +60,6 @@ export const useAuth = () => {
   }, []);
 
   const logout = useCallback(async () => {
-    setLoading(true);
-
     try {
       if (token) {
         await api.auth.logout();
@@ -73,22 +70,21 @@ export const useAuth = () => {
       localStorage.removeItem('token');
       setToken(null);
       setUser(null);
-      setLoading(false);
     }
   }, [token]);
 
-  const updateProfile = useCallback(async (profileData) => {
+  const updateProfile = useCallback(async (data) => {
     setLoading(true);
-    setError(null);
-
     try {
-      const response = await api.profile.update(profileData);
+      const response = await api.profile.update(data);
       setUser(response.data);
       return { success: true };
     } catch (err) {
-      const errorMessage = 'Failed to update profile';
-      setError(errorMessage);
-      return { success: false, error: errorMessage };
+      console.error('Profile update error:', err);
+      return { 
+        success: false, 
+        error: 'Failed to update profile'
+      };
     } finally {
       setLoading(false);
     }
@@ -99,37 +95,32 @@ export const useAuth = () => {
     setError(null);
 
     try {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        throw new Error('Please select an image file');
+      }
+
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('Image size should be less than 5MB');
+      }
+
       const response = await api.profile.updatePicture(file);
-      setUser(prev => ({
-        ...prev,
-        profile_picture: response.data.profile_picture
-      }));
-      return { success: true };
+      
+      // Refresh user data to get new profile picture
+      await fetchUserProfile();
+      
+      return { success: true, data: response.data };
     } catch (err) {
-      const errorMessage = 'Failed to update profile picture';
+      const errorMessage = err.message || 
+                          err.response?.data?.message || 
+                          'Failed to update profile picture';
       setError(errorMessage);
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  const register = useCallback(async (userData) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      await api.auth.register(userData);
-      return { success: true };
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || 
-                          'Registration failed. Please try again.';
-      setError(errorMessage);
-      return { success: false, error: errorMessage };
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  }, [fetchUserProfile]);
 
   return {
     user,
@@ -138,7 +129,6 @@ export const useAuth = () => {
     error,
     login,
     logout,
-    register,
     updateProfile,
     updateProfilePicture,
     fetchUserProfile,

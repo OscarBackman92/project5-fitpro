@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Row, Col, Alert } from 'react-bootstrap';
+import { Save } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { FiSave } from 'react-icons/fi';
 
 const ProfileForm = () => {
   const { user, updateProfile } = useAuth();
@@ -37,14 +37,10 @@ const ProfileForm = () => {
     setSuccess('');
 
     try {
-      const result = await updateProfile(formData);
-      if (result.success) {
-        setSuccess('Profile updated successfully!');
-      } else {
-        setError('Failed to update profile');
-      }
+      await updateProfile(formData);
+      setSuccess('Profile updated successfully!');
     } catch (err) {
-      setError('An error occurred while updating profile');
+      setError('Failed to update profile');
     } finally {
       setLoading(false);
     }
@@ -60,8 +56,25 @@ const ProfileForm = () => {
 
   return (
     <Form onSubmit={handleSubmit}>
-      {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
-      {success && <Alert variant="success" onClose={() => setSuccess('')} dismissible>{success}</Alert>}
+      {error && (
+        <Alert 
+          variant="danger" 
+          onClose={() => setError('')} 
+          dismissible
+        >
+          {error}
+        </Alert>
+      )}
+      
+      {success && (
+        <Alert 
+          variant="success" 
+          onClose={() => setSuccess('')} 
+          dismissible
+        >
+          {success}
+        </Alert>
+      )}
 
       <Row>
         <Col md={6}>
@@ -147,8 +160,9 @@ const ProfileForm = () => {
           variant="primary" 
           type="submit"
           disabled={loading}
+          className="d-flex align-items-center justify-content-center gap-2"
         >
-          <FiSave className="me-2" />
+          <Save size={20} />
           {loading ? 'Saving Changes...' : 'Save Changes'}
         </Button>
       </div>
