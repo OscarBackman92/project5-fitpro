@@ -1,29 +1,30 @@
+// src/App.js
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
-import { AuthProvider } from './components/contexts/AuthContext';
-import { WorkoutProvider } from './components/contexts/WorkoutContext';
-import { ProfileProvider } from './components/contexts/ProfileContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { WorkoutProvider } from './contexts/WorkoutContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
-import LoadingSpinner from './components/layout/LoadingSpinner';
 import PublicNavbar from './components/layout/PublicNavbar';
 import AuthNavbar from './components/layout/AuthNavbar';
 import PrivateRoute from './components/auth/PrivateRoute';
-import { useAuth } from './components/hooks/useAuth';
+import LoadingSpinner from './components/layout/LoadingSpinner';
+import Footer from './components/layout/Footer';
+import { useAuth } from './hooks/useAuth';
 
 // Public Pages
-import PublicHome from './components/pages/public/PublicHome';
-import Login from './components/pages/public/Login';
-import Register from './components/pages/public/Register';
+const PublicHome = React.lazy(() => import('./components/pages/public/PublicHome'));
+const Login = React.lazy(() => import('./components/pages/public/Login'));
+const Register = React.lazy(() => import('./components/pages/public/Register'));
 
-// Private Pages - Lazy loaded
+// Private Pages
 const Dashboard = React.lazy(() => import('./components/pages/private/Dashboard'));
 const Profile = React.lazy(() => import('./components/pages/private/Profile'));
 const WorkoutHistory = React.lazy(() => import('./components/pages/private/WorkoutHistory'));
 const LogWorkout = React.lazy(() => import('./components/pages/private/LogWorkout'));
 const WorkoutDetails = React.lazy(() => import('./components/pages/private/WorkoutDetails'));
+const SocialFeed = React.lazy(() => import('./components/pages/private/SocialFeed'));
 
-const AppContent = () => {
+function AppContent() {
   const { token, loading } = useAuth();
 
   if (loading) {
@@ -34,97 +35,45 @@ const AppContent = () => {
     <div className="d-flex flex-column min-vh-100">
       {token ? <AuthNavbar /> : <PublicNavbar />}
       <main className="flex-grow-1">
-        <Container className="py-4">
-          <ErrorBoundary>
-            <Suspense fallback={<LoadingSpinner />}>
-              <Routes>
-                {/* Public Routes */}
-                <Route 
-                  path="/" 
-                  element={!token ? <PublicHome /> : <Navigate to="/dashboard" />} 
-                />
-                <Route 
-                  path="/login" 
-                  element={!token ? <Login /> : <Navigate to="/dashboard" />} 
-                />
-                <Route 
-                  path="/register" 
-                  element={!token ? <Register /> : <Navigate to="/dashboard" />} 
-                />
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={!token ? <PublicHome /> : <Navigate to="/dashboard" />} />
+              <Route path="/login" element={!token ? <Login /> : <Navigate to="/dashboard" />} />
+              <Route path="/register" element={!token ? <Register /> : <Navigate to="/dashboard" />} />
 
-                {/* Protected Routes */}
-                <Route 
-                  path="/dashboard" 
-                  element={
-                    <PrivateRoute>
-                      <WorkoutProvider>
-                        <Dashboard />
-                      </WorkoutProvider>
-                    </PrivateRoute>
-                  } 
-                />
-                <Route 
-                  path="/profile" 
-                  element={
-                    <PrivateRoute>
-                      <ProfileProvider>
-                        <Profile />
-                      </ProfileProvider>
-                    </PrivateRoute>
-                  } 
-                />
-                <Route 
-                  path="/workouts" 
-                  element={
-                    <PrivateRoute>
-                      <WorkoutProvider>
-                        <WorkoutHistory />
-                      </WorkoutProvider>
-                    </PrivateRoute>
-                  } 
-                />
-                <Route 
-                  path="/workouts/new" 
-                  element={
-                    <PrivateRoute>
-                      <WorkoutProvider>
-                        <LogWorkout />
-                      </WorkoutProvider>
-                    </PrivateRoute>
-                  } 
-                />
-                <Route 
-                  path="/workouts/:id" 
-                  element={
-                    <PrivateRoute>
-                      <WorkoutProvider>
-                        <WorkoutDetails />
-                      </WorkoutProvider>
-                    </PrivateRoute>
-                  } 
-                />
-
-                {/* 404 Route */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Suspense>
-          </ErrorBoundary>
-        </Container>
+              {/* Protected Routes */}
+              <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+              <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+              <Route path="/workouts" element={<PrivateRoute><WorkoutHistory /></PrivateRoute>} />
+              <Route path="/workouts/new" element={<PrivateRoute><LogWorkout /></PrivateRoute>} />
+              <Route path="/workouts/:id" element={<PrivateRoute><WorkoutDetails /></PrivateRoute>} />
+              <Route path="/feed" element={<PrivateRoute><SocialFeed /></PrivateRoute>} />
+              
+              {/* Catch all route */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </main>
+      <Footer />
     </div>
   );
-};
+}
 
-const App = () => {
+function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <Router>
-          <AppContent />
-        </Router>
+        <WorkoutProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </WorkoutProvider>
       </AuthProvider>
     </ErrorBoundary>
   );
-};
+}
 
 export default App;

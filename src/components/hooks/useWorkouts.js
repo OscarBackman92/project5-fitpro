@@ -1,102 +1,57 @@
-import { useState, useCallback } from 'react';
-import { api } from '../../services/api';
+import { useCallback } from 'react';
+import axiosInstance from '../utils/api.config';
+import { useApi } from './useApi';
 
-const useWorkouts = () => {
-  const [workouts, setWorkouts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const fetchWorkouts = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await api.workouts.getAll();
-      console.log('Fetched workouts:', response.data);
-      setWorkouts(response.data);
-      setError(null);
-    } catch (err) {
-      console.error('Error fetching workouts:', err);
-      setError('Failed to load workouts');
-      setWorkouts([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+export const useWorkouts = () => {
+  const { 
+    data: workouts = [], 
+    loading, 
+    error,
+    execute: fetchWorkouts,
+    setData: setWorkouts 
+  } = useApi('/api/workouts/', {
+    immediate: true
+  });
 
   const createWorkout = useCallback(async (workoutData) => {
-    setLoading(true);
     try {
-      const response = await api.workouts.create(workoutData);
+      const response = await axiosInstance.post('/api/workouts/', workoutData);
       setWorkouts(prev => [...prev, response.data]);
-      return { success: true, data: response.data };
-    } catch (err) {
-      console.error('Error creating workout:', err);
-      setError('Failed to create workout');
-      return { success: false, error: err.message };
-    } finally {
-      setLoading(false);
+      return response.data;
+    } catch (error) {
+      throw error;
     }
-  }, []);
+  }, [setWorkouts]);
 
   const updateWorkout = useCallback(async (id, workoutData) => {
-    setLoading(true);
     try {
-      const response = await api.workouts.update(id, workoutData);
+      const response = await axiosInstance.patch(`/api/workouts/${id}/`, workoutData);
       setWorkouts(prev => 
         prev.map(workout => workout.id === id ? response.data : workout)
       );
-      return { success: true, data: response.data };
-    } catch (err) {
-      console.error('Error updating workout:', err);
-      setError('Failed to update workout');
-      return { success: false, error: err.message };
-    } finally {
-      setLoading(false);
+      return response.data;
+    } catch (error) {
+      throw error;
     }
-  }, []);
+  }, [setWorkouts]);
 
   const deleteWorkout = useCallback(async (id) => {
-    setLoading(true);
     try {
-      await api.workouts.delete(id);
+      await axiosInstance.delete(`/api/workouts/${id}/`);
       setWorkouts(prev => prev.filter(workout => workout.id !== id));
-      return { success: true };
-    } catch (err) {
-      console.error('Error deleting workout:', err);
-      setError('Failed to delete workout');
-      return { success: false, error: err.message };
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      throw error;
     }
-  }, []);
-
-  const getSummary = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await api.workouts.getSummary();
-      return { success: true, data: response.data };
-    } catch (err) {
-      console.error('Error fetching workout summary:', err);
-      setError('Failed to load workout summary');
-      return { success: false, error: err.message };
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const clearError = useCallback(() => {
-    setError(null);
-  }, []);
+  }, [setWorkouts]);
 
   return {
     workouts,
     loading,
     error,
-    fetchWorkouts,
     createWorkout,
     updateWorkout,
     deleteWorkout,
-    getSummary,
-    clearError
+    refreshWorkouts: fetchWorkouts
   };
 };
 

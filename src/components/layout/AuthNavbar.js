@@ -16,7 +16,7 @@ const AuthNavbar = () => {
   return (
     <Navbar bg="dark" variant="dark" expand="lg" className="mb-3">
       <Container>
-        <Navbar.Brand as={Link} to="/dashboard">Fitness Tracker</Navbar.Brand>
+        <Navbar.Brand as={Link} to="/dashboard">FITPRO</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
