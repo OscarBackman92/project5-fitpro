@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Row, Col, Alert } from 'react-bootstrap';
+import { Form, Button, Alert } from 'react-bootstrap';
 import { Save } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
@@ -37,10 +37,14 @@ const ProfileForm = () => {
     setSuccess('');
 
     try {
-      await updateProfile(formData);
-      setSuccess('Profile updated successfully!');
+      const result = await updateProfile(formData);
+      if (result.success) {
+        setSuccess('Profile updated successfully!');
+      } else {
+        throw new Error(result.error);
+      }
     } catch (err) {
-      setError('Failed to update profile');
+      setError(err.message || 'Failed to update profile');
     } finally {
       setLoading(false);
     }
@@ -76,96 +80,86 @@ const ProfileForm = () => {
         </Alert>
       )}
 
-      <Row>
-        <Col md={6}>
-          <Form.Group className="mb-3">
-            <Form.Label>Full Name</Form.Label>
-            <Form.Control
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Enter your full name"
-            />
-          </Form.Group>
+      <Form.Group className="mb-3">
+        <Form.Label>Full Name</Form.Label>
+        <Form.Control
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          placeholder="Enter your full name"
+        />
+      </Form.Group>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Date of Birth</Form.Label>
-            <Form.Control
-              type="date"
-              name="date_of_birth"
-              value={formData.date_of_birth}
-              onChange={handleChange}
-            />
-          </Form.Group>
+      <Form.Group className="mb-3">
+        <Form.Label>Date of Birth</Form.Label>
+        <Form.Control
+          type="date"
+          name="date_of_birth"
+          value={formData.date_of_birth}
+          onChange={handleChange}
+        />
+      </Form.Group>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Gender</Form.Label>
-            <Form.Select
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-            >
-              <option value="">Select Gender</option>
-              <option value="M">Male</option>
-              <option value="F">Female</option>
-              <option value="O">Other</option>
-            </Form.Select>
-          </Form.Group>
-        </Col>
-
-        <Col md={6}>
-          <Form.Group className="mb-3">
-            <Form.Label>Weight (kg)</Form.Label>
-            <Form.Control
-              type="number"
-              name="weight"
-              value={formData.weight}
-              onChange={handleChange}
-              min="0"
-              step="0.1"
-              placeholder="Enter your weight"
-            />
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Height (cm)</Form.Label>
-            <Form.Control
-              type="number"
-              name="height"
-              value={formData.height}
-              onChange={handleChange}
-              min="0"
-              step="0.1"
-              placeholder="Enter your height"
-            />
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Fitness Goals</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              name="fitness_goals"
-              value={formData.fitness_goals}
-              onChange={handleChange}
-              placeholder="What are your fitness goals?"
-            />
-          </Form.Group>
-        </Col>
-      </Row>
-
-      <div className="d-grid">
-        <Button 
-          variant="primary" 
-          type="submit"
-          disabled={loading}
-          className="d-flex align-items-center justify-content-center gap-2"
+      <Form.Group className="mb-3">
+        <Form.Label>Gender</Form.Label>
+        <Form.Select
+          name="gender"
+          value={formData.gender}
+          onChange={handleChange}
         >
-          <Save size={20} />
-          {loading ? 'Saving Changes...' : 'Save Changes'}
-        </Button>
-      </div>
+          <option value="">Select Gender</option>
+          <option value="M">Male</option>
+          <option value="F">Female</option>
+          <option value="O">Other</option>
+        </Form.Select>
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <Form.Label>Weight (kg)</Form.Label>
+        <Form.Control
+          type="number"
+          name="weight"
+          value={formData.weight}
+          onChange={handleChange}
+          step="0.1"
+          min="0"
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <Form.Label>Height (cm)</Form.Label>
+        <Form.Control
+          type="number"
+          name="height"
+          value={formData.height}
+          onChange={handleChange}
+          step="0.1"
+          min="0"
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <Form.Label>Fitness Goals</Form.Label>
+        <Form.Control
+          as="textarea"
+          rows={3}
+          name="fitness_goals"
+          value={formData.fitness_goals}
+          onChange={handleChange}
+          placeholder="What are your fitness goals?"
+        />
+      </Form.Group>
+
+      <Button 
+        type="submit"
+        variant="primary"
+        disabled={loading}
+        className="w-100"
+      >
+        <Save size={20} className="me-2" />
+        {loading ? 'Saving...' : 'Save Changes'}
+      </Button>
     </Form>
   );
 };
