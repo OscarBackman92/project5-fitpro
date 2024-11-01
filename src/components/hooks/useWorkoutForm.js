@@ -1,7 +1,7 @@
 // src/hooks/useWorkoutForm.js
 import { useState, useCallback } from 'react';
-import { useWorkouts } from '../contexts/WorkoutContext';
-import { WORKOUT_TYPES, INTENSITY_LEVELS } from '../utils/constants';
+import { useWorkouts } from '../hooks/useWorkouts';
+import { WORKOUT_TYPES, INTENSITY_LEVELS } from '../../utils/constants';
 
 export const useWorkoutForm = (initialData = null) => {
   const { createWorkout, updateWorkout } = useWorkouts();

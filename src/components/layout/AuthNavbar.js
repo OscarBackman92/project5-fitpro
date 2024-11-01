@@ -2,7 +2,7 @@ import React from 'react';
 import { Navbar, Nav, Container, NavDropdown } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiHome, FiUser, FiActivity, FiLogOut, FiPlusCircle, FiUsers } from 'react-icons/fi';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../hooks/useAuth';
 
 const AuthNavbar = () => {
   const { user, logout } = useAuth();

@@ -3,7 +3,7 @@ import React from 'react';
 import { Container, Form, Button, Card, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { FiSave, FiX } from 'react-icons/fi';
-import { useWorkoutForm } from '../../../hooks/useWorkoutForm';
+import { useWorkoutForm } from '../../hooks/useWorkoutForm';
 import { WORKOUT_TYPES, INTENSITY_LEVELS } from '../../../utils/constants';
 
 const LogWorkout = () => {

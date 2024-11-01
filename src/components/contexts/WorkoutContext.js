@@ -1,6 +1,5 @@
-// src/contexts/WorkoutContext.js
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { api } from '../services/api';
+import { createContext, useContext, useState, useCallback } from 'react';
+import { api } from '../../services/api';
 
 const WorkoutContext = createContext(null);
 

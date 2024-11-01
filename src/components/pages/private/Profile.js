@@ -1,7 +1,7 @@
 // src/components/pages/private/Profile.js
 import React, { useState } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { FiSave, FiCamera } from 'react-icons/fi';
 
 const Profile = () => {

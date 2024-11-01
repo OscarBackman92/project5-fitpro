@@ -1,18 +1,15 @@
-// src/components/pages/private/Dashboard.js
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FiPlus, FiActivity, FiClock, FiTarget } from 'react-icons/fi';
-import { useWorkouts } from '../../../contexts/WorkoutContext';
+import { FiPlus, FiActivity, FiClock } from 'react-icons/fi';
+import { useWorkouts } from '../../hooks/useWorkouts';
 import LoadingSpinner from '../../layout/LoadingSpinner';
-import { format } from 'date-fns';
 
 const Dashboard = () => {
-  const { fetchSummary, loading } = useWorkouts();
-  const [summary, setSummary] = useState({
+  const { loading, error, fetchSummary } = useWorkouts();
+  const [stats, setStats] = useState({
     total_workouts: 0,
     total_duration: 0,
-    total_calories: 0,
     workouts_this_week: 0,
     workouts_this_month: 0,
     recent_workouts: []
@@ -20,31 +17,21 @@ const Dashboard = () => {
 
   useEffect(() => {
     const loadSummary = async () => {
-      const data = await fetchSummary();
-      if (data) {
-        setSummary(data);
+      try {
+        const data = await fetchSummary();
+        if (data) {
+          setStats(data);
+        }
+      } catch (err) {
+        console.error('Error loading summary:', err);
       }
     };
+
     loadSummary();
   }, [fetchSummary]);
 
   if (loading) return <LoadingSpinner />;
-
-  const StatCard = ({ icon: Icon, title, value, color }) => (
-    <Card className="mb-4">
-      <Card.Body>
-        <div className="d-flex align-items-center">
-          <div className={`rounded-circle bg-${color} bg-opacity-10 p-3 me-3`}>
-            <Icon className={`text-${color}`} size={24} />
-          </div>
-          <div>
-            <h6 className="mb-1">{title}</h6>
-            <h3 className="mb-0">{value}</h3>
-          </div>
-        </div>
-      </Card.Body>
-    </Card>
-  );
+  if (error) return <div className="alert alert-danger">{error}</div>;
 
   return (
     <Container className="py-4">
@@ -57,112 +44,65 @@ const Dashboard = () => {
       </div>
 
       <Row>
-        <Col md={6} lg={3}>
-          <StatCard
-            icon={FiActivity}
-            title="Total Workouts"
-            value={summary.total_workouts}
-            color="primary"
-          />
-        </Col>
-        <Col md={6} lg={3}>
-          <StatCard
-            icon={FiClock}
-            title="Total Minutes"
-            value={summary.total_duration}
-            color="success"
-          />
-        </Col>
-        <Col md={6} lg={3}>
-          <StatCard
-            icon={FiTarget}
-            title="This Week"
-            value={summary.workouts_this_week}
-            color="info"
-          />
-        </Col>
-        <Col md={6} lg={3}>
-          <StatCard
-            icon={FiActivity}
-            title="Monthly"
-            value={summary.workouts_this_month}
-            color="warning"
-          />
-        </Col>
-      </Row>
-
-      <Row>
-        <Col lg={8}>
+        <Col md={6} lg={4}>
           <Card className="mb-4">
-            <Card.Header>
-              <h5 className="mb-0">Recent Workouts</h5>
-            </Card.Header>
             <Card.Body>
-              {summary.recent_workouts.length > 0 ? (
-                <div className="list-group">
-                  {summary.recent_workouts.map((workout) => (
-                    <Link
-                      key={workout.id}
-                      to={`/workouts/${workout.id}`}
-                      className="list-group-item list-group-item-action"
-                    >
-                      <div className="d-flex justify-content-between align-items-center">
-                        <div>
-                          <h6 className="mb-1">{workout.workout_type_display}</h6>
-                          <small>{format(new Date(workout.date_logged), 'MMM dd, yyyy')}</small>
-                        </div>
-                        <div className="text-end">
-                          <div>{workout.duration} mins</div>
-                          <small className="text-muted">{workout.calories} calories</small>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
+              <div className="d-flex align-items-center">
+                <div className="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                  <FiActivity className="text-primary" size={24} />
                 </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="mb-0">No recent workouts</p>
-                  <Button as={Link} to="/workouts/new" variant="primary" className="mt-3">
-                    Log Your First Workout
-                  </Button>
+                <div>
+                  <h6 className="mb-1">Total Workouts</h6>
+                  <h3 className="mb-0">{stats.total_workouts}</h3>
                 </div>
-              )}
+              </div>
             </Card.Body>
           </Card>
         </Col>
 
-        <Col lg={4}>
-          <Card>
-            <Card.Header>
-              <h5 className="mb-0">Quick Stats</h5>
-            </Card.Header>
+        <Col md={6} lg={4}>
+          <Card className="mb-4">
             <Card.Body>
-              <div className="d-flex justify-content-between mb-3">
-                <span>Avg. Duration:</span>
-                <strong>
-                  {summary.total_workouts
-                    ? Math.round(summary.total_duration / summary.total_workouts)
-                    : 0} mins
-                </strong>
-              </div>
-              <div className="d-flex justify-content-between mb-3">
-                <span>Avg. Calories:</span>
-                <strong>
-                  {summary.total_workouts
-                    ? Math.round(summary.total_calories / summary.total_workouts)
-                    : 0}
-                </strong>
-              </div>
-              <div className="d-flex justify-content-between">
-                <span>Completion Rate:</span>
-                <strong>
-                  {Math.round((summary.workouts_this_week / 7) * 100)}%
-                </strong>
+              <div className="d-flex align-items-center">
+                <div className="rounded-circle bg-success bg-opacity-10 p-3 me-3">
+                  <FiClock className="text-success" size={24} />
+                </div>
+                <div>
+                  <h6 className="mb-1">Total Minutes</h6>
+                  <h3 className="mb-0">{stats.total_duration}</h3>
+                </div>
               </div>
             </Card.Body>
           </Card>
         </Col>
       </Row>
+
+      {stats.recent_workouts.length > 0 && (
+        <Card>
+          <Card.Header>
+            <h5 className="mb-0">Recent Workouts</h5>
+          </Card.Header>
+          <Card.Body>
+            <div className="list-group">
+              {stats.recent_workouts.map((workout) => (
+                <Link
+                  key={workout.id}
+                  to={`/workouts/${workout.id}`}
+                  className="list-group-item list-group-item-action"
+                >
+                  <div className="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 className="mb-1">{workout.workout_type_display}</h6>
+                      <small>{new Date(workout.date_logged).toLocaleDateString()}</small>
+                    </div>
+                    <div>{workout.duration} mins</div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </Card.Body>
+        </Card>
+      )}
     </Container>
   );
 };
