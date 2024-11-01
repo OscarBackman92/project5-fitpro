@@ -1,0 +1,93 @@
+.Profile {
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+}
+
+.Profile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ProfileContent {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.Mobile .ProfileContent {
+  flex-direction: column;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.ImageWrapper {
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ProfileImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.DefaultAvatar {
+  color: #6c757d;
+}
+
+.ProfileInfo {
+  flex: 1;
+}
+
+.NameLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.NameLink:hover {
+  color: #0d6efd;
+}
+
+.Stats {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.StatItem {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #6c757d;
+}
+
+.StatItem svg {
+  width: 16px;
+  height: 16px;
+}
+
+.FollowButton {
+  margin-left: auto;
+}
+
+.FollowBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.Mobile .Stats {
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.Mobile .FollowButton {
+  margin: 0.5rem auto 0;
+}
