@@ -1,9 +1,10 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './components/contexts/AuthContext';
+import { ProfileProvider } from './components/contexts/ProfileContext';
 import { WorkoutProvider } from './components/contexts/WorkoutContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
-import Navbar from './components/layout/Navbar';  // Updated import
+import Navbar from './components/layout/Navbar';
 import PrivateRoute from './components/auth/PrivateRoute';
 import LoadingSpinner from './components/layout/LoadingSpinner';
 import Footer from './components/layout/Footer';
@@ -45,43 +46,23 @@ function AppRoutes() {
       {/* Protected Routes */}
       <Route 
         path="/dashboard" 
-        element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        } 
+        element={<PrivateRoute><Dashboard /></PrivateRoute>} 
       />
       <Route 
         path="/profile" 
-        element={
-          <PrivateRoute>
-            <Profile />
-          </PrivateRoute>
-        } 
+        element={<PrivateRoute><Profile /></PrivateRoute>} 
       />
       <Route 
         path="/workouts" 
-        element={
-          <PrivateRoute>
-            <WorkoutHistory />
-          </PrivateRoute>
-        } 
+        element={<PrivateRoute><WorkoutHistory /></PrivateRoute>} 
       />
       <Route 
         path="/workouts/new" 
-        element={
-          <PrivateRoute>
-            <LogWorkout />
-          </PrivateRoute>
-        } 
+        element={<PrivateRoute><LogWorkout /></PrivateRoute>} 
       />
       <Route 
         path="/workouts/:id" 
-        element={
-          <PrivateRoute>
-            <WorkoutDetails />
-          </PrivateRoute>
-        } 
+        element={<PrivateRoute><WorkoutDetails /></PrivateRoute>} 
       />
       
       {/* Catch all route */}
@@ -91,15 +72,9 @@ function AppRoutes() {
 }
 
 function AppContent() {
-  const { loading } = useAuth();
-
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
   return (
     <div className="d-flex flex-column min-vh-100">
-      <Navbar />  {/* Only using the single Navbar component */}
+      <Navbar />
       <main className="flex-grow-1 mt-5 pt-3">
         <ErrorBoundary>
           <Suspense fallback={<LoadingSpinner />}>
@@ -116,11 +91,13 @@ function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <WorkoutProvider>
-          <Router>
-            <AppContent />
-          </Router>
-        </WorkoutProvider>
+        <ProfileProvider>
+          <WorkoutProvider>
+            <Router>
+              <AppContent />
+            </Router>
+          </WorkoutProvider>
+        </ProfileProvider>
       </AuthProvider>
     </ErrorBoundary>
   );
