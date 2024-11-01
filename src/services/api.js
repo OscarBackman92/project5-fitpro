@@ -1,12 +1,9 @@
-// src/services/api.js
-
 import axios from 'axios';
-
-const BASE_URL = process.env.REACT_APP_API_URL || 'https://fitnessapi-d773a1148384.herokuapp.com';
+import { API_URL } from '../utils/constants';
 
 // Create axios instance with default config
 const axiosInstance = axios.create({
-  baseURL: BASE_URL,
+  baseURL: API_URL,
   withCredentials: true,
   timeout: 15000,
   headers: {
