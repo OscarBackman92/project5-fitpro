@@ -4,7 +4,7 @@ import { Container, Form, Button, Alert } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft } from 'react-icons/fi';
 import { useWorkouts } from '../../hooks/useWorkouts';
-import { WORKOUT_TYPES } from '../../../utils/constants';
+import { WORKOUT_TYPES } from '../../utils/constants';
 import LoadingSpinner from '../../layout/LoadingSpinner';
 
 const WorkoutDetails = () => {
