@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Table, Button, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi';
@@ -10,43 +10,36 @@ const WorkoutHistory = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const fetchWorkouts = async () => {
+  const fetchWorkouts = useCallback(async () => {
     try {
       const response = await api.workouts.getAll();
-      console.log('Full API Response:', response);
       
-      // Extract workouts from the paginated response
-      if (response.data.results) {
-        setWorkouts(response.data.results);
-        console.log('Workouts set:', response.data.results);
-      } else {
-        console.error('Unexpected response format:', response.data);
-        setWorkouts([]);
-      }
+      // Handle both array and paginated response formats
+      const workoutData = response.data.results || response.data || [];
+      setWorkouts(Array.isArray(workoutData) ? workoutData : []);
+      
     } catch (err) {
       console.error('Error fetching workouts:', err);
       setError('Failed to load workouts');
-      setWorkouts([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // Empty dependency array since it doesn't depend on any props or state
 
   useEffect(() => {
-    console.log('Fetching workouts...');
     fetchWorkouts();
-  }, []);
+  }, [fetchWorkouts]); // Now including fetchWorkouts as a dependency
 
-  const handleDelete = async (id) => {
+  const handleDelete = useCallback(async (id) => {
     if (window.confirm('Are you sure you want to delete this workout?')) {
       try {
         await api.workouts.delete(id);
-        await fetchWorkouts(); // Refresh the list after deletion
+        setWorkouts(prevWorkouts => prevWorkouts.filter(workout => workout.id !== id));
       } catch (err) {
         setError('Failed to delete workout');
       }
     }
-  };
+  }, []); // No dependencies needed as it uses the functional state update
 
   if (loading) return <LoadingSpinner />;
 
@@ -60,7 +53,15 @@ const WorkoutHistory = () => {
         </Button>
       </div>
 
-      {error && <Alert variant="danger">{error}</Alert>}
+      {error && (
+        <Alert 
+          variant="danger" 
+          onClose={() => setError('')} 
+          dismissible
+        >
+          {error}
+        </Alert>
+      )}
 
       {workouts.length === 0 ? (
         <Alert variant="info">
@@ -83,7 +84,7 @@ const WorkoutHistory = () => {
             {workouts.map(workout => (
               <tr key={workout.id}>
                 <td>{new Date(workout.date_logged).toLocaleDateString()}</td>
-                <td>{workout.workout_type_display}</td>
+                <td>{workout.workout_type_display || workout.workout_type}</td>
                 <td>{workout.duration} min</td>
                 <td>
                   <span 
