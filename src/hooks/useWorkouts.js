@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import axiosInstance from '../../services/axios.config';
+import axiosInstance from '../api/axios.config';
 
 export const useWorkouts = () => {
   const [workouts, setWorkouts] = useState([]);  // Initialize as empty array

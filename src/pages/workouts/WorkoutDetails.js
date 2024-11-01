@@ -5,7 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft } from 'react-icons/fi';
 import { useWorkouts } from '../../hooks/useWorkouts';
 import { WORKOUT_TYPES } from '../../utils/constants';
-import LoadingSpinner from '../../layout/LoadingSpinner';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const WorkoutDetails = () => {
   const { id } = useParams();

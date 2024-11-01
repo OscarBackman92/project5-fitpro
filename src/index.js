@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { AuthProvider } from './components/contexts/AuthContext';
-import { WorkoutProvider } from './components/contexts/WorkoutContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { WorkoutProvider } from './contexts/WorkoutContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import App from './App';
 import reportWebVitals from './reportWebVitals';

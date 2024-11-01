@@ -3,7 +3,7 @@ import { Container, Table, Button, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { useWorkouts } from '../../hooks/useWorkouts';
-import LoadingSpinner from '../../layout/LoadingSpinner';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const WorkoutHistory = () => {
   const { workouts, loading, error, fetchWorkouts, deleteWorkout } = useWorkouts();

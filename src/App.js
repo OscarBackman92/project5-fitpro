@@ -1,24 +1,24 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './components/contexts/AuthContext';
-import { ProfileProvider } from './components/contexts/ProfileContext';
-import { WorkoutProvider } from './components/contexts/WorkoutContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { ProfileProvider } from './contexts/ProfileContext';
+import { WorkoutProvider } from './contexts/WorkoutContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import Navbar from './components/layout/Navbar';
 import PrivateRoute from './components/auth/PrivateRoute';
-import LoadingSpinner from './components/layout/LoadingSpinner';
+import LoadingSpinner from './components/common/LoadingSpinner';
 import Footer from './components/layout/Footer';
-import { useAuth } from './components/hooks/useAuth';
+import { useAuth } from './hooks/useAuth';
 
 // Lazy load components
-const PublicHome = React.lazy(() => import('./components/pages/public/PublicHome'));
-const Login = React.lazy(() => import('./components/pages/public/Login'));
-const Register = React.lazy(() => import('./components/pages/public/Register'));
-const Dashboard = React.lazy(() => import('./components/pages/private/Dashboard'));
-const Profile = React.lazy(() => import('./components/profiles/Profile'));
-const WorkoutHistory = React.lazy(() => import('./components/pages/private/WorkoutHistory'));
-const LogWorkout = React.lazy(() => import('./components/pages/private/LogWorkout'));
-const WorkoutDetails = React.lazy(() => import('./components/pages/private/WorkoutDetails'));
+const PublicHome = React.lazy(() => import('./pages/public/Home'));
+const Login = React.lazy(() => import('./pages/auth/Login'));
+const Register = React.lazy(() => import('./pages/auth/Register'));
+const Dashboard = React.lazy(() => import('./pages/workouts/Dashboard'));
+const Profile = React.lazy(() => import('./pages/profiles/ProfilePage'));
+const WorkoutHistory = React.lazy(() => import('./pages/workouts/WorkoutHistory'));
+const LogWorkout = React.lazy(() => import('./pages/workouts/WorkoutForm'));
+const WorkoutDetails = React.lazy(() => import('./pages/workouts/WorkoutDetails'));
 
 function AppRoutes() {
   const { token, loading } = useAuth();

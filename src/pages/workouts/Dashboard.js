@@ -3,7 +3,7 @@ import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FiPlus, FiActivity, FiClock } from 'react-icons/fi';
 import { useWorkouts } from '../../hooks/useWorkouts';
-import LoadingSpinner from '../../layout/LoadingSpinner';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const Dashboard = () => {
   const { loading, error, fetchSummary } = useWorkouts();
