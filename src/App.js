@@ -14,7 +14,7 @@ const PublicHome = React.lazy(() => import('./components/pages/public/PublicHome
 const Login = React.lazy(() => import('./components/pages/public/Login'));
 const Register = React.lazy(() => import('./components/pages/public/Register'));
 const Dashboard = React.lazy(() => import('./components/pages/private/Dashboard'));
-const Profile = React.lazy(() => import('./components/pages/private/Profile'));
+const Profile = React.lazy(() => import('./components/profiles/Profile'));
 const WorkoutHistory = React.lazy(() => import('./components/pages/private/WorkoutHistory'));
 const LogWorkout = React.lazy(() => import('./components/pages/private/LogWorkout'));
 const WorkoutDetails = React.lazy(() => import('./components/pages/private/WorkoutDetails'));

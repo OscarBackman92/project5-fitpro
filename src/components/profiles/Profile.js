@@ -2,31 +2,45 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Card } from 'react-bootstrap';
 import { FiUser, FiActivity, FiCalendar, FiUserCheck, FiUserPlus } from 'react-icons/fi';
-import { useAuth } from '../../hooks/useAuth';
-import { useProfile } from '../../contexts/ProfileContext';
-import styles from '../../../styles/assets/Profile.module.css';
+import { useAuth } from '../hooks/useAuth';
+import { useProfile } from '../contexts/ProfileContext';
+import styles from '../../styles/Profile.module.css';
 
-const Profile = ({ profile, mobile, imageSize = 55 }) => {
+const Profile = ({ profile = {}, mobile = false, imageSize = 55 }) => {
+
+  const { user: currentUser } = useAuth();
+  const { handleFollow, handleUnfollow } = useProfile();
+
+  if (!profile) {
+    return null;
+  }
+
   const {
-    id,
-    name,
-    profile_picture,
-    username,
-    workouts_count,
-    following_id,
-    followers_count,
-    following_count
+    id = null,
+    name = '',
+    profile_picture = null,
+    user = {},
+    workouts_count = 0,
+    followers_count = 0,
+    following_count = 0,
+    fitness_goals = '',
   } = profile;
 
-  const { user } = useAuth();
-  const { handleFollow, handleUnfollow } = useProfile();
-  const is_owner = user?.username === username;
+  if (!id) {
+    return null;
+  }
+
+  const is_owner = currentUser?.id === user?.id;
 
   const handleFollowClick = async () => {
-    if (following_id) {
-      await handleUnfollow(profile);
-    } else {
-      await handleFollow(profile);
+    try {
+      if (profile.is_following) {
+        await handleUnfollow(profile);
+      } else {
+        await handleFollow(profile);
+      }
+    } catch (err) {
+      console.error('Error handling follow/unfollow:', err);
     }
   };
 
@@ -41,7 +55,7 @@ const Profile = ({ profile, mobile, imageSize = 55 }) => {
             {profile_picture ? (
               <img
                 src={profile_picture}
-                alt={name}
+                alt={name || user.username}
                 className={styles.ProfileImage}
               />
             ) : (
@@ -52,37 +66,44 @@ const Profile = ({ profile, mobile, imageSize = 55 }) => {
 
         <div className={styles.ProfileInfo}>
           <Link to={`/profile/${id}`} className={styles.NameLink}>
-            <h6 className="mb-0">{name || username}</h6>
-            {name && <small className="text-muted">@{username}</small>}
+            <h6 className="mb-0">{name || user.username}</h6>
+            {name && <small className="text-muted">@{user.username}</small>}
           </Link>
 
           {!mobile && (
             <div className={styles.Stats}>
               <div className={styles.StatItem}>
                 <FiActivity />
-                <small>{workouts_count || 0} workouts</small>
+                <small>{workouts_count} workouts</small>
               </div>
               <div className={styles.StatItem}>
                 <FiUserCheck />
-                <small>{followers_count || 0} followers</small>
+                <small>{followers_count} followers</small>
               </div>
               <div className={styles.StatItem}>
                 <FiCalendar />
-                <small>{following_count || 0} following</small>
+                <small>{following_count} following</small>
               </div>
             </div>
           )}
+
+          {!mobile && fitness_goals && (
+            <small className="text-muted d-block mt-1">
+              {fitness_goals.substring(0, 60)}
+              {fitness_goals.length > 60 && '...'}
+            </small>
+          )}
         </div>
 
-        {!mobile && !is_owner && user && (
+        {!mobile && !is_owner && currentUser && (
           <div className={styles.FollowButton}>
             <Button
-              variant={following_id ? "outline-primary" : "primary"}
+              variant={profile.is_following ? "outline-primary" : "primary"}
               size="sm"
               onClick={handleFollowClick}
               className={styles.FollowBtn}
             >
-              {following_id ? (
+              {profile.is_following ? (
                 <>
                   <FiUserCheck className="me-1" />
                   Following
