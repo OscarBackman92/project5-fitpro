@@ -1,88 +1,59 @@
-import React, { useState } from 'react';
+// src/components/pages/private/LogWorkout.js
+import React from 'react';
 import { Container, Form, Button, Card, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { FiSave } from 'react-icons/fi';
-import { api } from '../../../services/api';
+import { FiSave, FiX } from 'react-icons/fi';
+import { useWorkoutForm } from '../../../hooks/useWorkoutForm';
+import { WORKOUT_TYPES, INTENSITY_LEVELS } from '../../../utils/constants';
 
 const LogWorkout = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [formData, setFormData] = useState({
-    workout_type: 'cardio',
-    date_logged: new Date().toISOString().split('T')[0],
-    duration: '',
-    calories: '',
-    notes: '',
-    intensity: 'moderate'
-  });
+  const {
+    formData,
+    loading,
+    error,
+    handleChange,
+    handleSubmit,
+  } = useWorkoutForm();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      console.log('Submitting workout data:', formData); // Debug log
-      
-      // Format the data
-      const workoutData = {
-        ...formData,
-        duration: parseInt(formData.duration, 10),
-        calories: parseInt(formData.calories, 10)
-      };
-
-      // Get the token
-      const token = localStorage.getItem('token');
-      console.log('Auth token:', token); // Debug log
-
-      const response = await api.workouts.create(workoutData);
-      console.log('Workout created:', response.data); // Debug log
-      
+  const onSubmit = async (e) => {
+    const result = await handleSubmit(e);
+    if (result.success) {
       navigate('/workouts');
-    } catch (err) {
-      console.error('Error creating workout:', err);
-      setError(err.response?.data?.message || 'Failed to save workout. Please try again.');
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
   return (
-    <Container>
-      <h2 className="mb-4">Log New Workout</h2>
-      
-      {error && <Alert variant="danger">{error}</Alert>}
+    <Container className="py-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2>Log New Workout</h2>
+      </div>
+
+      {error && (
+        <Alert variant="danger" className="mb-4">
+          {typeof error === 'string' ? error : 'Please check all required fields'}
+        </Alert>
+      )}
 
       <Card>
         <Card.Body>
-          <Form onSubmit={handleSubmit}>
+          <Form onSubmit={onSubmit}>
             <Form.Group className="mb-3">
-              <Form.Label>Workout Type</Form.Label>
+              <Form.Label>Workout Type*</Form.Label>
               <Form.Select
                 name="workout_type"
                 value={formData.workout_type}
                 onChange={handleChange}
                 required
               >
-                <option value="cardio">Cardio</option>
-                <option value="strength">Strength Training</option>
-                <option value="flexibility">Flexibility</option>
-                <option value="sports">Sports</option>
-                <option value="other">Other</option>
+                {Object.entries(WORKOUT_TYPES).map(([key, value]) => (
+                  <option key={key} value={value}>{key}</option>
+                ))}
               </Form.Select>
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Date</Form.Label>
+              <Form.Label>Date*</Form.Label>
               <Form.Control
                 type="date"
                 name="date_logged"
@@ -93,7 +64,7 @@ const LogWorkout = () => {
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Duration (minutes)</Form.Label>
+              <Form.Label>Duration (minutes)*</Form.Label>
               <Form.Control
                 type="number"
                 name="duration"
@@ -106,7 +77,7 @@ const LogWorkout = () => {
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Calories Burned</Form.Label>
+              <Form.Label>Calories Burned*</Form.Label>
               <Form.Control
                 type="number"
                 name="calories"
@@ -118,35 +89,43 @@ const LogWorkout = () => {
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Intensity</Form.Label>
+              <Form.Label>Intensity*</Form.Label>
               <Form.Select
                 name="intensity"
                 value={formData.intensity}
                 onChange={handleChange}
                 required
               >
-                <option value="low">Low</option>
-                <option value="moderate">Moderate</option>
-                <option value="high">High</option>
+                {Object.entries(INTENSITY_LEVELS).map(([key, value]) => (
+                  <option key={key} value={value}>{key}</option>
+                ))}
               </Form.Select>
             </Form.Group>
 
-            <Form.Group className="mb-3">
+            <Form.Group className="mb-4">
               <Form.Label>Notes</Form.Label>
               <Form.Control
                 as="textarea"
-                rows={3}
                 name="notes"
                 value={formData.notes}
                 onChange={handleChange}
+                rows={3}
                 placeholder="Add any additional details about your workout..."
               />
             </Form.Group>
 
-            <div className="d-grid">
-              <Button 
-                variant="primary" 
+            <div className="d-flex justify-content-end gap-2">
+              <Button
+                variant="outline-secondary"
+                onClick={() => navigate('/workouts')}
+                disabled={loading}
+              >
+                <FiX className="me-2" />
+                Cancel
+              </Button>
+              <Button
                 type="submit"
+                variant="primary"
                 disabled={loading}
               >
                 <FiSave className="me-2" />
