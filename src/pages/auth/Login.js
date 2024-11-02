@@ -1,9 +1,7 @@
-// src/components/pages/public/Login.js
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Card, Alert } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiLogIn, FiUser, FiLock } from 'react-icons/fi';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -19,14 +17,10 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
+  
     try {
-      const result = await login(formData);
-      if (result.success) {
-        navigate('/dashboard');
-      } else {
-        setError(result.error || 'Invalid credentials');
-      }
+      await login(formData);
+      navigate('/dashboard');  // Navigate after successful login
     } catch (err) {
       setError('Failed to login. Please try again.');
     } finally {
@@ -54,40 +48,30 @@ const Login = () => {
               <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3">
                   <Form.Label>Username</Form.Label>
-                  <div className="input-group">
-                    <span className="input-group-text">
-                      <FiUser />
-                    </span>
-                    <Form.Control
-                      type="text"
-                      value={formData.username}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        username: e.target.value
-                      })}
-                      required
-                      placeholder="Enter your username"
-                    />
-                  </div>
+                  <Form.Control
+                    type="text"
+                    value={formData.username}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      username: e.target.value
+                    })}
+                    required
+                    placeholder="Enter your username"
+                  />
                 </Form.Group>
 
                 <Form.Group className="mb-4">
                   <Form.Label>Password</Form.Label>
-                  <div className="input-group">
-                    <span className="input-group-text">
-                      <FiLock />
-                    </span>
-                    <Form.Control
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        password: e.target.value
-                      })}
-                      required
-                      placeholder="Enter your password"
-                    />
-                  </div>
+                  <Form.Control
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      password: e.target.value
+                    })}
+                    required
+                    placeholder="Enter your password"
+                  />
                 </Form.Group>
 
                 <Button 
@@ -96,7 +80,6 @@ const Login = () => {
                   className="w-100 mb-3"
                   disabled={loading}
                 >
-                  <FiLogIn className="me-2" />
                   {loading ? 'Logging in...' : 'Log In'}
                 </Button>
 

@@ -1,5 +1,5 @@
 import { authService } from './services/auth.service';
-import { profileService } from './services/profileService';
+import { profileService } from './services/profile.Service';
 import { workoutService } from './services/workout.service';
 // import { socialService } from './services/social.service';
 import { getErrorMessage } from '../utils/error-handler';

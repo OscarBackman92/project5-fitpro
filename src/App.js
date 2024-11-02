@@ -11,7 +11,9 @@ import Footer from './components/layout/Footer';
 import { useAuth } from './hooks/useAuth';
 import { ROUTES } from './utils/constants';
 
-// Lazy load components
+// App.js
+
+// 1. First, simplify all lazy imports
 const PublicHome = React.lazy(() => import('./pages/public/Home'));
 const Login = React.lazy(() => import('./pages/auth/Login'));
 const Register = React.lazy(() => import('./pages/auth/Register'));
@@ -20,6 +22,17 @@ const Profile = React.lazy(() => import('./pages/profiles/ProfilePage'));
 const WorkoutHistory = React.lazy(() => import('./pages/workouts/WorkoutHistory'));
 const LogWorkout = React.lazy(() => import('./pages/workouts/WorkoutForm'));
 const WorkoutDetails = React.lazy(() => import('./pages/workouts/WorkoutDetails'));
+
+// 2. Create a wrapper component for Suspense + PrivateRoute
+const PrivateRouteWithSuspense = ({ children }) => {
+  return (
+    <PrivateRoute>
+      <Suspense fallback={<LoadingSpinner />}>
+        {children}
+      </Suspense>
+    </PrivateRoute>
+  );
+};
 
 function AppRoutes() {
   const { token, loading } = useAuth();
@@ -33,37 +46,69 @@ function AppRoutes() {
       {/* Public Routes */}
       <Route 
         path={ROUTES.HOME} 
-        element={!token ? <PublicHome /> : <Navigate to={ROUTES.DASHBOARD} />} 
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            {!token ? <PublicHome /> : <Navigate to={ROUTES.DASHBOARD} />}
+          </Suspense>
+        } 
       />
       <Route 
         path={ROUTES.LOGIN} 
-        element={!token ? <Login /> : <Navigate to={ROUTES.DASHBOARD} />} 
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            {!token ? <Login /> : <Navigate to={ROUTES.DASHBOARD} />}
+          </Suspense>
+        } 
       />
       <Route 
         path={ROUTES.REGISTER} 
-        element={!token ? <Register /> : <Navigate to={ROUTES.DASHBOARD} />} 
+        element={
+          <Suspense fallback={<LoadingSpinner />}>
+            {!token ? <Register /> : <Navigate to={ROUTES.DASHBOARD} />}
+          </Suspense>
+        } 
       />
 
       {/* Protected Routes */}
-      <Route 
-        path={ROUTES.DASHBOARD} 
-        element={<PrivateRoute><Dashboard /></PrivateRoute>} 
+      <Route
+        path={ROUTES.DASHBOARD}
+        element={
+          <PrivateRouteWithSuspense>
+            <Dashboard />
+          </PrivateRouteWithSuspense>
+        }
       />
-      <Route 
-        path={ROUTES.PROFILE} 
-        element={<PrivateRoute><Profile /></PrivateRoute>} 
+      <Route
+        path={ROUTES.PROFILE}
+        element={
+          <PrivateRouteWithSuspense>
+            <Profile />
+          </PrivateRouteWithSuspense>
+        }
       />
-      <Route 
-        path={ROUTES.WORKOUTS} 
-        element={<PrivateRoute><WorkoutHistory /></PrivateRoute>} 
+      <Route
+        path={ROUTES.WORKOUTS}
+        element={
+          <PrivateRouteWithSuspense>
+            <WorkoutHistory />
+          </PrivateRouteWithSuspense>
+        }
       />
-      <Route 
-        path={ROUTES.WORKOUT_NEW} 
-        element={<PrivateRoute><LogWorkout /></PrivateRoute>} 
+      <Route
+        path={ROUTES.WORKOUT_NEW}
+        element={
+          <PrivateRouteWithSuspense>
+            <LogWorkout />
+          </PrivateRouteWithSuspense>
+        }
       />
-      <Route 
-        path={ROUTES.WORKOUT_DETAILS} 
-        element={<PrivateRoute><WorkoutDetails /></PrivateRoute>} 
+      <Route
+        path={ROUTES.WORKOUT_DETAILS}
+        element={
+          <PrivateRouteWithSuspense>
+            <WorkoutDetails />
+          </PrivateRouteWithSuspense>
+        }
       />
       
       {/* Catch all route */}
@@ -78,9 +123,7 @@ function AppContent() {
       <Navbar />
       <main className="flex-grow-1 mt-5 pt-3">
         <ErrorBoundary>
-          <Suspense fallback={<LoadingSpinner />}>
-            <AppRoutes />
-          </Suspense>
+          <AppRoutes />
         </ErrorBoundary>
       </main>
       <Footer />
