@@ -9,6 +9,7 @@ import PrivateRoute from './components/auth/PrivateRoute';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import Footer from './components/layout/Footer';
 import { useAuth } from './hooks/useAuth';
+import { ROUTES } from './utils/constants';
 
 // Lazy load components
 const PublicHome = React.lazy(() => import('./pages/public/Home'));
@@ -31,42 +32,42 @@ function AppRoutes() {
     <Routes>
       {/* Public Routes */}
       <Route 
-        path="/" 
-        element={!token ? <PublicHome /> : <Navigate to="/dashboard" />} 
+        path={ROUTES.HOME} 
+        element={!token ? <PublicHome /> : <Navigate to={ROUTES.DASHBOARD} />} 
       />
       <Route 
-        path="/login" 
-        element={!token ? <Login /> : <Navigate to="/dashboard" />} 
+        path={ROUTES.LOGIN} 
+        element={!token ? <Login /> : <Navigate to={ROUTES.DASHBOARD} />} 
       />
       <Route 
-        path="/register" 
-        element={!token ? <Register /> : <Navigate to="/dashboard" />} 
+        path={ROUTES.REGISTER} 
+        element={!token ? <Register /> : <Navigate to={ROUTES.DASHBOARD} />} 
       />
 
       {/* Protected Routes */}
       <Route 
-        path="/dashboard" 
+        path={ROUTES.DASHBOARD} 
         element={<PrivateRoute><Dashboard /></PrivateRoute>} 
       />
       <Route 
-        path="/profile" 
+        path={ROUTES.PROFILE} 
         element={<PrivateRoute><Profile /></PrivateRoute>} 
       />
       <Route 
-        path="/workouts" 
+        path={ROUTES.WORKOUTS} 
         element={<PrivateRoute><WorkoutHistory /></PrivateRoute>} 
       />
       <Route 
-        path="/workouts/new" 
+        path={ROUTES.WORKOUT_NEW} 
         element={<PrivateRoute><LogWorkout /></PrivateRoute>} 
       />
       <Route 
-        path="/workouts/:id" 
+        path={ROUTES.WORKOUT_DETAILS} 
         element={<PrivateRoute><WorkoutDetails /></PrivateRoute>} 
       />
       
       {/* Catch all route */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
     </Routes>
   );
 }

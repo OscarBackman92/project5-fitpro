@@ -1,56 +1,60 @@
 import React, { useState } from 'react';
-import { Alert } from 'react-bootstrap';
+import { Alert, ProgressBar } from 'react-bootstrap';
 import { Camera } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import Avatar from '../../components/common/Avatar';
 
 const ProfilePictureUpload = () => {
   const { user, updateProfilePicture } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('Please select an image file');
-      return;
-    }
-
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image size should be less than 5MB');
-      return;
-    }
-
     setLoading(true);
     setError('');
     setSuccess('');
+    setUploadProgress(0);
 
     try {
-      await updateProfilePicture(file);
+      const onProgress = (progress) => {
+        setUploadProgress(progress);
+      };
+
+      await updateProfilePicture(file, onProgress);
       setSuccess('Profile picture updated successfully!');
     } catch (err) {
-      setError('Failed to update profile picture');
+      console.error('Profile picture update error:', err);
+      setError(err.message || 'Failed to update profile picture');
     } finally {
       setLoading(false);
+      setUploadProgress(0);
     }
   };
 
   return (
     <div className="text-center">
-      {error && <Alert variant="danger" dismissible onClose={() => setError('')}>{error}</Alert>}
-      {success && <Alert variant="success" dismissible onClose={() => setSuccess('')}>{success}</Alert>}
+      {error && (
+        <Alert variant="danger" onClose={() => setError('')} dismissible>
+          {error}
+        </Alert>
+      )}
+      
+      {success && (
+        <Alert variant="success" onClose={() => setSuccess('')} dismissible>
+          {success}
+        </Alert>
+      )}
 
       <div className="position-relative d-inline-block">
-        <Avatar
-          src={user?.profile_picture}
-          alt={user?.name || 'Profile'}
-          size={150}
-          loading={loading}
+        <img
+          src={user?.profile_picture || '/api/placeholder/150/150'}
+          alt="Profile"
+          className={`rounded-circle ${loading ? 'opacity-50' : ''}`}
+          style={{ width: '150px', height: '150px', objectFit: 'cover' }}
         />
         
         <label 
@@ -66,6 +70,17 @@ const ProfilePictureUpload = () => {
             disabled={loading}
           />
         </label>
+
+        {loading && (
+          <div className="position-absolute top-50 start-50 translate-middle w-75">
+            <ProgressBar 
+              now={uploadProgress} 
+              label={`${uploadProgress}%`}
+              variant="info"
+              animated
+            />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useCallback, useState } from 'react';
-import { api } from '../api/api';
+import { api } from '../api';
 
 
 const ProfileContext = createContext(null);

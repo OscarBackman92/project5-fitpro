@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { api } from '../api/api';
+import { api } from '../api/index';
 import { authService } from '../api/services/auth.service';
 
 export const useAuth = () => {

@@ -1,13 +1,13 @@
-import { api } from '../api';
+import axiosInstance from '../config/axios';
 
 export const authService = {
   login: async (credentials) => {
     try {
-      const response = await api.auth.login(credentials);
+      const response = await axiosInstance.post('/api/auth/login/', credentials);
       if (response.data.key) {
         localStorage.setItem('token', response.data.key);
       }
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -16,8 +16,7 @@ export const authService = {
 
   register: async (userData) => {
     try {
-      const response = await api.auth.register(userData);
-      return response.data;
+      return await axiosInstance.post('/api/auth/register/', userData);
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
@@ -26,8 +25,9 @@ export const authService = {
 
   logout: async () => {
     try {
-      await api.auth.logout();
+      const response = await axiosInstance.post('/api/auth/logout/');
       localStorage.removeItem('token');
+      return response;
     } catch (error) {
       console.error('Logout error:', error);
       localStorage.removeItem('token');
@@ -35,13 +35,12 @@ export const authService = {
     }
   },
 
-  getToken: () => {
-    return localStorage.getItem('token');
-  },
-
-  isAuthenticated: () => {
-    return !!localStorage.getItem('token');
+  refreshToken: async () => {
+    try {
+      return await axiosInstance.post('/api/auth/token/refresh/');
+    } catch (error) {
+      console.error('Token refresh error:', error);
+      throw error;
+    }
   }
 };
-
-export default authService;

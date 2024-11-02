@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback } from 'react';
-import { api } from '../api/api';
+import { api } from '../api';
 
 const WorkoutContext = createContext(null);
 
