@@ -1,133 +1,72 @@
-import React, { useRef, useState, useCallback } from 'react';
-import { Image, Button, ProgressBar, Alert } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Alert } from 'react-bootstrap';
 import { Camera } from 'lucide-react';
-import { useProfile } from '../contexts/ProfileContext';
-import { useAuth } from '../hooks/useAuth';
-
-const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+import { useAuth } from '../../hooks/useAuth';
+import Avatar from '../../components/common/Avatar';
 
 const ProfilePictureUpload = () => {
-  const fileInputRef = useRef(null);
-  const [preview, setPreview] = useState(null);
-  const { handleProfilePictureUpload, loading, error, uploadProgress, setError } = useProfile();
-  const { user, refreshProfile } = useAuth();
+  const { user, updateProfilePicture } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const validateFile = useCallback((file) => {
-    if (!file) return 'Please select an image file';
-    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-      return 'Please select a valid image file (JPEG, PNG, GIF, or WebP)';
-    }
-    if (file.size > MAX_FILE_SIZE) {
-      return 'Image size should be less than 5MB';
-    }
-    return null;
-  }, []);
-
-  const handleFileSelect = useCallback(() => {
-    fileInputRef.current?.click();
-  }, []);
-
-  const handleFileChange = useCallback(async (event) => {
-    const file = event.target.files?.[0];
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
     if (!file) return;
 
-    // Clear previous states
-    setError(null);
-    
-    // Validate file
-    const validationError = validateFile(file);
-    if (validationError) {
-      setError(validationError);
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
       return;
     }
 
-    // Create preview
-    const objectUrl = URL.createObjectURL(file);
-    setPreview(objectUrl);
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size should be less than 5MB');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setSuccess('');
 
     try {
-      const result = await handleProfilePictureUpload(file);
-      if (result.success) {
-        await refreshProfile();
-        setPreview(null);
-      }
+      await updateProfilePicture(file);
+      setSuccess('Profile picture updated successfully!');
     } catch (err) {
-      console.error('Profile picture upload failed:', err);
+      setError('Failed to update profile picture');
+    } finally {
+      setLoading(false);
     }
-
-    // Cleanup
-    URL.revokeObjectURL(objectUrl);
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  }, [handleProfilePictureUpload, validateFile, refreshProfile, setError]);
+  };
 
   return (
     <div className="text-center">
-      {error && (
-        <Alert 
-          variant="danger" 
-          onClose={() => setError(null)} 
-          dismissible
-        >
-          {error}
-        </Alert>
-      )}
+      {error && <Alert variant="danger" dismissible onClose={() => setError('')}>{error}</Alert>}
+      {success && <Alert variant="success" dismissible onClose={() => setSuccess('')}>{success}</Alert>}
 
-      <div className="position-relative d-inline-block mb-3">
-        <Image
-          src={preview || user?.profile_picture || '/api/placeholder/150/150'}
-          alt="Profile"
-          roundedCircle
-          className={`border ${loading ? 'opacity-50' : ''}`}
-          style={{ 
-            width: '150px', 
-            height: '150px', 
-            objectFit: 'cover',
-            backgroundColor: '#f8f9fa'
-          }}
-          onError={(e) => {
-            e.target.src = '/api/placeholder/150/150';
-          }}
+      <div className="position-relative d-inline-block">
+        <Avatar
+          src={user?.profile_picture}
+          alt={user?.name || 'Profile'}
+          size={150}
+          loading={loading}
         />
         
-        <Button
-          variant="primary"
-          className="position-absolute bottom-0 end-0 rounded-circle p-2"
-          style={{ width: '40px', height: '40px' }}
-          onClick={handleFileSelect}
-          disabled={loading}
+        <label 
+          className="position-absolute bottom-0 end-0 bg-primary rounded-circle p-2"
+          style={{ cursor: loading ? 'not-allowed' : 'pointer' }}
         >
-          <Camera size={20} />
-        </Button>
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          className="d-none"
-          accept={ALLOWED_FILE_TYPES.join(',')}
-          onChange={handleFileChange}
-          disabled={loading}
-        />
+          <Camera className="text-white" size={20} />
+          <input
+            type="file"
+            className="d-none"
+            accept="image/*"
+            onChange={handleImageChange}
+            disabled={loading}
+          />
+        </label>
       </div>
-
-      {loading && (
-        <ProgressBar 
-          now={uploadProgress} 
-          label={`${uploadProgress}%`}
-          className="mb-3"
-          animated
-        />
-      )}
-
-      <small className="text-muted d-block">
-        Click the camera icon to update your profile picture
-      </small>
-      <small className="text-muted d-block">
-        Max size: 5MB. Supported formats: JPEG, PNG, GIF, WebP
-      </small>
     </div>
   );
 };

@@ -13,7 +13,7 @@ import {
   FiUsers
 } from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
-import { useClickOutsideToggle } from '../hooks/useClickOutsideToggle';
+import { useClickOutsideToggle } from '../../hooks/useClickOutsideToggle';
 import styles from '../../styles/components/NavBar.module.css';
 
 const NavBar = () => {
